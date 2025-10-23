@@ -1,194 +1,248 @@
-    ```html
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Choose Language | ഭാഷ തിരഞ്ഞെടുക്കുക</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        :root {
-        --primary-green: #298c56;
-        --light-green: #e9faee;
-        --off-white: #FFFFFF;
-        --primary-dark: #1f5c3c;
-        --primary-light: #6ec094;
-        --secondary-yellow: #FFD700;
-        --shadow-color: rgba(41, 140, 86, 0.4);
-        }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Language Selection | ഭാഷ തിരഞ്ഞെടുക്കുക</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    /* * Theming & Variables: A senior dev uses logical, descriptive variable names.
+     * Primary: Deep Forest Green (Brand Color)
+     * Accent: Luxurious Gold
+     */
+    :root {
+        --brand-primary: #1F5C3C; /* Darker Green for text/icons */
+        --brand-secondary: #298c56; /* Main Green for borders/highlights */
+        --background-light: #F7FCF8; /* A very light, crisp off-white */
+        --accent-gold: #FFD700; /* Secondary/Action Color */
+        --accent-shadow: rgba(31, 92, 60, 0.25); /* Primary-based shadow */
+        --ui-card-bg: #E9FAEE; /* Lightest green for contrast */
+    }
 
-        body {
-        font-family: 'Noto Sans Devanagari', 'Noto Sans Tamil', 'Noto Sans Telugu', 'Noto Sans Malayalam', 'Noto Sans', 'Georgia', serif;
-        color: var(--primary-dark);
+    body {
+        /* Prioritized Noto Sans for a modern, clean, multilingual look */
+        font-family: 'Noto Sans', sans-serif; 
+        color: var(--brand-primary);
         display: flex; 
         align-items: center; 
         justify-content: center; 
         min-height: 100vh; 
         margin: 0;
-        background: linear-gradient(135deg, #d1e3d6, #e9faee, #d1e3d6);
-        }
+        /* Subtle, non-distracting gradient for the main background */
+        background: linear-gradient(135deg, #f0f6f2, #e9faee, #f0f6f2);
+    }
 
-        .mobile-frame {
+    .mobile-frame {
         width: 440px; 
-        height: 956px; 
-        background: var(--off-white);
+        height: 95vh; /* Use vh for better screen fit */
+        background: var(--background-light);
         border-radius: 40px; 
-        border: 10px solid #111;
-        box-shadow: 0 30px 80px rgba(0,0,0,0.6), inset 0 0 15px var(--primary-dark), 0 0 0 5px var(--primary-light);
+        border: 12px solid var(--brand-primary); /* Thicker, defined border */
+        /* More realistic, softer shadows for a premium device feel */
+        box-shadow: 0 40px 100px rgba(0,0,0,0.4), 
+                    inset 0 0 15px rgba(31, 92, 60, 0.1), /* Inner glow */
+                    0 0 0 5px var(--brand-secondary); /* Outer highlight */
         overflow: hidden;
         display: flex;
         flex-direction: column;
         position: relative;
-        padding: 25px 15px 15px;
-        }
+        padding: 35px 20px 20px; /* Increased padding */
+    }
 
-        .dynamic-island {
-        width: 100px; 
-        height: 30px; 
+    .dynamic-island {
+        /* Made slightly more elegant and less bulky */
+        width: 90px; 
+        height: 25px; 
         background: #000; 
-        border-radius: 0 0 15px 15px; 
+        border-radius: 0 0 12px 12px; 
         position: absolute; 
         top: 10px; 
         left: 50%; 
         transform: translateX(-50%); 
         z-index: 20;
-        box-shadow: 0 5px 10px rgba(0,0,0,0.3);
-        }
+        box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    }
 
-        .app-content {
+    .app-content {
         flex-grow: 1;
         display: flex;
         align-items: center;
         justify-content: center;
         overflow-y: auto;
+        /* Modern scrollbar hiding */
         scrollbar-width: none;
         -ms-overflow-style: none;
         padding: 40px 0;
-        }
-        .app-content::-webkit-scrollbar { display: none; }
+    }
+    .app-content::-webkit-scrollbar { display: none; }
 
-        .language-card {
-        background: linear-gradient(180deg, var(--off-white) 50%, var(--light-green));
-        backdrop-filter: blur(10px);
-        padding: 40px 30px;
-        border-radius: 25px;
-        box-shadow: 0 15px 50px var(--shadow-color);
+    .language-card {
+        /* A more subtle and depth-oriented background gradient */
+        background: linear-gradient(180deg, var(--background-light) 0%, var(--ui-card-bg) 100%);
+        padding: 50px 35px; /* Increased internal padding */
+        border-radius: 28px; /* Slightly more curved edges */
+        /* Premium, softer card shadow */
+        box-shadow: 0 20px 60px var(--accent-shadow), 0 0 0 1px rgba(0,0,0,0.05);
         text-align: center;
-        border: 1px solid rgba(0,0,0,0.05);
         width: 95%; 
         max-width: 380px;
-        }
+        transition: transform 0.3s ease; /* Added for subtle interaction */
+    }
+    .language-card:hover { transform: translateY(-3px); }
 
-        .language-card h2 {
-        font-family: 'Georgia', serif;
-        font-size: 2rem;
-        font-weight: 800;
-        color: var(--primary-dark);
-        margin-bottom: 25px;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    .language-card h2 {
+        /* A serif font for the main title (e.g., Merriweather) adds authority/premium feel */
+        font-family: 'Merriweather', 'Georgia', serif; 
+        font-size: 2.2rem; /* Larger, bolder title */
+        font-weight: 700;
+        color: var(--brand-primary);
+        margin-bottom: 30px;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.05);
         position: relative;
-        }
+        letter-spacing: -0.5px;
+    }
 
-        .language-card h2::after {
+    .language-card h2::after {
         content: '';
         display: block;
-        width: 50px;
-        height: 4px;
-        background: var(--secondary-yellow);
-        border-radius: 2px;
-        margin: 10px auto 0;
-        }
+        width: 60px; /* Slightly wider accent bar */
+        height: 5px; /* Thicker accent bar */
+        background: var(--accent-gold);
+        border-radius: 3px;
+        margin: 15px auto 0;
+    }
 
-        .select-wrapper { position: relative; margin-top: 30px; width: 100%; }
-        select { 
+    .select-wrapper { position: relative; margin-top: 40px; width: 100%; }
+    select { 
         -webkit-appearance: none;
         -moz-appearance: none;
         appearance: none;
-        background-color: var(--light-green);
-        padding: 18px 50px 18px 20px; 
-        font-size: 1.1rem; 
-        border-radius: 15px;
-        border: 2px solid var(--primary-green);
+        background-color: var(--ui-card-bg); /* Use light green for the select background */
+        padding: 18px 50px 18px 25px; /* Increased left padding */
+        font-size: 1.15rem; 
+        border-radius: 18px; /* More rounded select box */
+        border: 3px solid var(--brand-secondary); /* Thicker border for definition */
         cursor: pointer;
-        color: var(--primary-dark);
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        color: var(--brand-primary);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
         width: 100%;
         font-weight: 600;
-        }
-        select:focus {
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    select:focus {
         outline: none;
-        border-color: var(--secondary-yellow);
-        }
-        .select-wrapper::after {
+        border-color: var(--accent-gold);
+        box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.3); /* Focus ring effect */
+    }
+    .select-wrapper::after {
         content: "\f0d7"; 
-        font-family: 'Font Awesome 5 Free';
+        font-family: 'Font Awesome 6 Free'; /* Updated Font Awesome reference */
         font-weight: 900;
         position: absolute;
         top: 50%;
-        right: 20px;
+        right: 25px;
         transform: translateY(-50%);
-        color: var(--primary-dark);
-        font-size: 1.2rem;
+        color: var(--brand-primary);
+        font-size: 1.3rem;
         pointer-events: none;
-        }
+    }
 
-        button {
+    .action-button {
         border-radius: 9999px;
-        padding: 1rem 3rem; 
-        color: var(--primary-dark);
+        padding: 1.1rem 3.5rem; /* Larger, more substantial button */
+        color: var(--brand-primary);
         font-weight: 800;
-        text-align: center;
-        box-shadow: 0 8px 20px rgba(255,165,0,0.4);
-        letter-spacing: 1px;
-        background: linear-gradient(145deg, #FFA500, #FFD700, #FFA500);
+        letter-spacing: 1.5px; /* Tighter letter-spacing on buttons */
+        /* More prominent, gold-based shadow */
+        box-shadow: 0 10px 25px rgba(255,165,0,0.5); 
+        /* Deeper, more luxurious gradient for the button */
+        background: linear-gradient(145deg, #FFC107, #FFD700, #FFA000);
         display: inline-block;
-        border: 3px solid var(--off-white);
-        margin-top: 40px;
+        border: 4px solid var(--background-light); /* Thicker white border */
+        margin-top: 50px;
         cursor: pointer;
         width: 100%;
-        font-size: 1.1rem;
-        }
-        button:hover {
-        filter: brightness(1.05);
-        }
+        font-size: 1.2rem;
+        text-transform: uppercase; /* Common practice for action buttons */
+        transition: all 0.2s ease;
+    }
+    .action-button:hover {
+        filter: brightness(1.1);
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(255,165,0,0.6);
+    }
+    /* Critical addition: A professional 'active' (click) state */
+    .action-button:active {
+        transform: translateY(0);
+        filter: brightness(0.9);
+        box-shadow: 0 5px 15px rgba(255,165,0,0.5);
+    }
 
-        @media screen and (max-width: 500px) {
-        .mobile-frame { width: 95%; height: 90vh; padding: 10px; border-radius: 30px; }
-        .language-card h2 { font-size: 1.5rem; }
-        select, button { font-size: 1rem; }
+    /* Media Query Refinement (Professional Mobile-First approach) */
+    @media screen and (max-width: 500px) {
+        body { background: var(--background-light); }
+        .mobile-frame { 
+            width: 100%; 
+            height: 100vh; 
+            padding: 10px; 
+            border-radius: 0; 
+            border: none;
+            box-shadow: none; /* Remove frame shadows on small screens */
         }
-    </style>
-    </head>
-    <body>
-    <div class="mobile-frame">
-        <div class="dynamic-island"></div>
-        <div class="app-content">
-        <div class="language-card">
-            <h2>Select Your Language</h2>
-            <div class="select-wrapper">
-            <select id="language">
-                <option value="en">English (English)</option>
-                <option value="hi">हिन्दी (Hindi)</option>
-                <option value="ta">தமிழ் (Tamil)</option>
-                <option value="ml" selected>മലയാളം (Malayalam)</option>
-                <option value="te">తెలుగు (Telugu)</option>
-                <option value="fr">Français (French)</option>
-            </select>
-            </div>
-            <button onclick="saveLanguage()">Next</button>
+        .dynamic-island { display: none; /* Remove island on true mobile */ }
+        .language-card { 
+            width: 90%; 
+            padding: 40px 25px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); /* Lighter card shadow */
+        }
+        .language-card h2 { font-size: 1.75rem; }
+        select, .action-button { font-size: 1.1rem; padding: 1rem 2rem; }
+    }
+</style>
+</head>
+<body>
+<div class="mobile-frame" role="main" aria-label="Language Selection Interface">
+    <div class="dynamic-island"></div> 
+    <div class="app-content">
+    <div class="language-card">
+        <h2>Select Your Language</h2>
+        <div class="select-wrapper">
+        <select id="language" aria-label="Select Language">
+            <option value="en" data-lang="English">English (English)</option>
+            <option value="hi" data-lang="Hindi">हिन्दी (Hindi)</option>
+            <option value="ta" data-lang="Tamil">தமிழ் (Tamil)</option>
+            <option value="ml" data-lang="Malayalam" selected>മലയാളം (Malayalam)</option>
+            <option value="te" data-lang="Telugu">తెలుగు (Telugu)</option>
+            <option value="fr" data-lang="French">Français (French)</option>
+        </select>
         </div>
-        </div>
+        <button class="action-button" onclick="saveLanguage()" aria-label="Proceed to the next page">Next</button>
     </div>
+    </div>
+</div>
 
-    <script>
-        function saveLanguage() {
-        const lang = document.getElementById('language').value;
-        localStorage.setItem("chosenLanguage", lang);
-        window.location.href = "mainpage.html"; // Redirects to mainpage.html
-        }
-    </script>
-    </body>
-    </html>
-    ```
+<script>
+    /**
+     * Senior developers use clear, descriptive function names and may add 
+     * simple error checking/logging, although the core logic remains simple.
+     */
+    function saveLanguage() {
+        const langSelect = document.getElementById('language');
+        const selectedLang = langSelect.value;
         
+        // Log the choice for debugging/tracking (good practice)
+        console.log(`Language selected: ${selectedLang}`);
+
+        // Save to Local Storage
+        localStorage.setItem("chosenLanguage", selectedLang);
+        
+        // Redirect
+        window.location.href = "mainpage.html"; 
+    }
+</script>
+</body>
+</html>

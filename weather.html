@@ -3,31 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Weather Forecast App</title>
+    <title>Weather App</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- Original Light Theme Variables --- */
         :root {
             --bg1: #d3eafc;
             --bg2: #f0f8ff;
             --accent: #00d4ff;
-            --card: #ffffff; /* White card background */
+            --card: rgba(255, 255, 255, 0.06);
             --glass: rgba(255, 255, 255, 0.06);
             --glass-strong: rgba(255, 255, 255, 0.08);
-            --muted: #666; /* Muted color for light theme */
+            --muted: rgba(255, 255, 255, 0.75);
             --green: #4caf50;
             --red: #f44336;
             --blue-1: #00d4ff;
             --blue-2: #00a4d1;
-            
-            /* New variables for the light theme structure */
-            --text-dark: #333;
-            --line-color: #ffcc00; /* Yellow line color for the chart (from image) */
-            --fill-color: rgba(255, 204, 0, 0.2); 
-            --tab-active: #ffcc00;
-            --tab-inactive: transparent;
         }
 
         html, body {
@@ -41,7 +33,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--text-dark);
+            color: #333;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
@@ -49,7 +41,7 @@
         .mobile-frame {
             width: 430px;
             height: 932px;
-            background: #e1f5fe; /* Light blue from original code/image concept */
+            background: #e1f5fe; /* Light blue from image */
             border-radius: 50px;
             border: 12px solid #111;
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
@@ -70,38 +62,44 @@
             background: #111;
             border-bottom-left-radius: 20px;
             border-bottom-right-radius: 20px;
-            z-index: 10;
         }
 
         .container {
             flex: 1;
-            padding: 25px 25px 0 25px; /* Adjusted padding */
+            padding: 25px;
             display: flex;
             flex-direction: column;
             overflow-y: auto;
             background: var(--bg2);
             animation: fadeIn 0.8s ease-in-out;
-            color: var(--text-dark);
+            color: #333;
         }
-
-        /* Original Panel (Search) is now minimalist */
+        
         .panel {
-            background: var(--card);
+            background: #fff;
             border-radius: 18px;
-            padding: 15px 20px;
+            padding: 26px;
             box-shadow: 0 10px 30px rgba(2, 6, 23, 0.1);
             border: 1px solid rgba(0,0,0,0.05);
             margin-bottom: 20px;
         }
-        
-        .panel h1, .panel p.lead {
-            display: none; 
+
+        h1 {
+            margin: 0 0 6px 0;
+            font-size: 20px;
+            letter-spacing: 0.2px;
+            color: var(--blue-2);
         }
 
+        p.lead {
+            margin: 0 0 18px 0;
+            color: #666;
+            font-size: 13px;
+        }
+        
         .search-container {
             display: flex;
             gap: 10px;
-            margin-bottom: 10px;
         }
 
         .search-container input {
@@ -109,11 +107,11 @@
             padding: 12px 14px;
             border-radius: 12px;
             border: 1px solid #ddd;
-            background: #fff; /* Explicitly white for light theme */
+            background: transparent;
             color: inherit;
             font-size: 15px;
             outline: none;
-            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .search-btn {
@@ -132,212 +130,75 @@
         .search-btn:active {
             transform: translateY(1px) scale(.997);
         }
-
-        /* --- New Structure Styles (Current Status) --- */
-        .top-status {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 30px;
-            padding: 0 5px; /* Little padding adjustment */
-        }
-
-        .current-temp-data {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .weather-icon {
-            font-size: 50px;
-        }
-
-        .temp-primary {
-            font-size: 64px;
-            font-weight: 700;
-            line-height: 1;
-        }
-
-        .details-secondary {
-            text-align: right;
-            font-size: 14px;
-            color: var(--muted);
-        }
-
-        .details-secondary div {
-            margin-bottom: 4px;
-        }
         
-        /* --- Hourly Forecast / Chart Section --- */
-        .hourly-forecast-section {
-            background: var(--card);
-            border-radius: 18px;
-            padding: 20px 20px 0 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(2, 6, 23, 0.05);
-        }
-
-        .tabs {
-            display: flex;
-            gap: 25px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            margin-bottom: 15px;
-        }
-
-        .tab-item {
-            padding: 0 0 8px 0;
-            font-weight: 600;
-            font-size: 15px;
-            cursor: pointer;
-            border-bottom: 3px solid var(--tab-inactive);
-            transition: border-bottom 0.2s ease, color 0.2s ease;
-            color: var(--muted);
-        }
-
-        .tab-item.active {
-            border-bottom: 3px solid var(--tab-active);
-            color: var(--text-dark);
-        }
-
-        .chart-wrapper {
-            overflow-x: auto;
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-            padding: 15px 0;
-            margin-left: -20px; 
-            margin-right: -20px;
-        }
-        
-        .chart-wrapper::-webkit-scrollbar {
-            display: none;
-        }
-
-        .chart-line {
-            height: 150px; 
-            min-width: 700px;
+        .card {
             position: relative;
-        }
-
-        /* Mock Chart Styling (Light Theme) */
-        .chart-area {
-            position: absolute;
-            bottom: 20px;
-            width: 100%;
-            height: 80px; 
-            background: var(--fill-color);
-            border-top: 2px solid var(--line-color);
-            border-radius: 5px 5px 0 0;
+            padding: 28px;
+            border-radius: 18px;
             overflow: hidden;
-            display: flex;
-        }
-        
-        .temp-dot {
-            width: 6px;
-            height: 6px;
-            background: var(--line-color);
-            border-radius: 50%;
-            position: absolute;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 5px rgba(255, 204, 0, 0.5);
-        }
-        
-        .chart-data-point {
-            position: absolute;
+            min-height: 320px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            width: 30px;
+            justify-content: center;
+            background: #e1f5fe;
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: 0 20px 40px rgba(2, 6, 23, 0.15);
         }
         
-        .chart-data-point .temp-value {
-            position: absolute;
-            top: 0;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-dark);
-            transform: translateY(-10px);
-        }
-        
-        .chart-data-point .time-label {
-            position: absolute;
-            bottom: 0;
-            font-size: 12px;
-            color: var(--muted);
-            transform: translateY(20px);
-        }
-
-        /* --- Daily Forecast Section --- */
-        .daily-forecast-section {
-            background: var(--card);
-            border-radius: 18px;
-            padding: 15px 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(2, 6, 23, 0.05);
-        }
-
-        .daily-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-            font-size: 15px;
-        }
-        
-        .daily-item.active {
-            background-color: rgba(0, 0, 0, 0.05); /* Light highlight for active day */
-            border-radius: 10px;
-            padding-left: 10px;
-            padding-right: 10px;
-            margin-left: -10px;
-            margin-right: -10px;
-        }
-
-        .daily-item:last-child {
-            border-bottom: none;
-        }
-
-        .day-name {
-            width: 80px;
-            font-weight: 600;
-        }
-
-        .day-icon {
-            width: 50px;
+        .temp-display {
+            font-size: 64px;
+            font-weight: 700;
             text-align: center;
-            font-size: 20px;
-        }
-
-        .day-temp-range {
-            width: 80px;
-            text-align: right;
-            font-weight: 600;
-        }
-
-        .day-min-temp {
-            color: var(--muted);
-            margin-left: 5px;
-            font-weight: 400;
+            margin: 20px 0 10px;
         }
         
-        /* Original Loader Styles */
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .detail-item {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 15px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.05);
+            color: #333;
+        }
+        
+        .detail-item .value {
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        
+        .detail-item .label {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+
         .loader {
-            width: 20px;
-            height: 20px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            border: 3px solid rgba(0,0,0,0.1);
+            border: 4px solid rgba(0,0,0,0.1);
             border-top-color: var(--blue-1);
             animation: spin 1s linear infinite;
+            margin: 0 auto;
         }
         
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
         
-        #status > div:nth-child(2) {
-            color: var(--text-dark);
-            margin-left: 10px;
+        @media (max-width: 880px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -345,151 +206,73 @@
     <div class="mobile-frame">
         <div class="container">
             <div class="panel">
+                <h1>Weather App</h1>
+                <p class="lead">Get the current weather for any location.</p>
                 <div class="search-container">
                     <input type="text" id="cityInput" placeholder="Enter city name..." />
+                    <button id="voiceInputBtn" class="search-btn" style="padding: 10px 14px; width: 48px; min-width: 48px;">
+                        <span id="mic-icon" style="font-size: 1.2em;">🎙️</span>
+                    </button>
                     <button id="searchBtn" class="search-btn">Get Weather</button>
                 </div>
-                <div id="status" style="margin-top:10px; display:flex; gap:10px; align-items:center"></div>
-            </div>
-
-            <div id="weatherContent">
-                <div id="topStatus" class="top-status" style="display:none;">
-                    <div class="current-temp-data">
-                        <span id="currentIcon" class="weather-icon">☁️</span>
-                        <div>
-                            <div id="currentTemp" class="temp-primary">29</div>
-                            <div style="font-size: 18px; font-weight: 600; color: var(--text-dark);">°C | °F</div>
-                        </div>
-                    </div>
-                    <div class="details-secondary">
-                        <div id="weatherConditionHeader" style="font-weight: 600; color: var(--text-dark);">Weather</div>
-                        <div id="dateTime" class="condition-text">Thursday, 4:00 pm</div>
-                        <div id="currentCondition" class="condition-text">Cloudy</div>
-                        <div style="height: 10px;"></div>
-                        <div id="precipitation">Precipitation: 10%</div>
-                        <div id="humidity">Humidity: 65%</div>
-                        <div id="wind">Wind: 16 km/h</div>
-                    </div>
-                </div>
-
-                <div id="hourlyForecastSection" class="hourly-forecast-section" style="display:none;">
-                    <div class="tabs">
-                        <div class="tab-item active" data-type="temp">Temperature</div>
-                        <div class="tab-item" data-type="precip">Precipitation</div>
-                        <div class="tab-item" data-type="wind">Wind</div>
-                    </div>
-                    <div class="chart-wrapper">
-                        <div id="hourlyChart" class="chart-line">
-                            </div>
-                    </div>
-                </div>
-
-                <div id="dailyForecastSection" class="daily-forecast-section" style="display:none;">
-                    <div id="dailyForecastList">
-                        </div>
+                <div style="margin-top:18px; display:flex; gap:10px; align-items:center">
+                    <div id="status" style="display:flex; align-items:center; gap:10px;"></div>
                 </div>
             </div>
 
-            <div id="initialLoader" class="status-container" style="display:flex; justify-content:center; align-items:center; height: 300px;">
-                <div style="text-align:center; color:var(--muted); font-size:14px; line-height:1.6;">
-                    <div class="loader" aria-hidden="true" style="margin: 0 auto;"></div>
-                    <div style="margin-top: 10px; color: var(--text-dark);">Loading weather...</div>
+            <div class="card" id="weatherCard">
+                <div id="weatherInfo">
+                    <div style="text-align:center; color:#999; font-size:14px; line-height:1.6;">
+                        <div class="loader" aria-hidden="true"></div>
+                        <div style="margin-top: 10px;">Loading initial weather...</div>
+                    </div>
                 </div>
             </div>
-            <div id="errorMessage" class="error-message" style="display:none;"></div>
-
         </div>
     </div>
 
     <script>
         const API_KEY = 'c9be3e0c0a524f52b6a174659253108';
+        const weatherInfoDiv = document.getElementById('weatherInfo');
         const cityInput = document.getElementById('cityInput');
         const searchBtn = document.getElementById('searchBtn');
         const statusEl = document.getElementById('status');
-        const initialLoader = document.getElementById('initialLoader');
-        const errorMessageEl = document.getElementById('errorMessage');
-        const topStatusEl = document.getElementById('topStatus');
-        const hourlyForecastSectionEl = document.getElementById('hourlyForecastSection');
-        const dailyForecastSectionEl = document.getElementById('dailyForecastSection');
-        const hourlyChartEl = document.getElementById('hourlyChart');
-        const dailyForecastListEl = document.getElementById('dailyForecastList');
+        const weatherCard = document.getElementById('weatherCard');
         
-        let weatherData = null; 
+        // Voice Input Elements
+        const voiceInputBtn = document.getElementById('voiceInputBtn');
+        const micIcon = document.getElementById('mic-icon');
 
-        // Elements for current weather
-        const currentIconEl = document.getElementById('currentIcon');
-        const currentTempEl = document.getElementById('currentTemp');
-        const weatherConditionHeaderEl = document.getElementById('weatherConditionHeader');
-        const currentConditionEl = document.getElementById('currentCondition');
-        const dateTimeEl = document.getElementById('dateTime');
-        const precipitationEl = document.getElementById('precipitation');
-        const humidityEl = document.getElementById('humidity');
-        const windEl = document.getElementById('wind');
-        
-        function getWeatherIcon(conditionCode, isDay) {
-            // Mapping to replicate the visual style (emoji icons)
-            const map = {
-                1000: isDay ? '☀️' : '🌙', // Clear/Sunny
-                1003: '🌤️', 1006: '☁️', 1009: '☁️', // Cloudy
-                1063: '🌧️', 1183: '🌧️', 1192: '🌧️', // Rain
-                1114: '🌨️', 1219: '❄️', // Snow
-                1087: '⛈️', 1279: '⛈️', // Thundery
-            };
-            return map[conditionCode] || '☁️'; 
-        }
 
-        function getDayName(dateString, index) {
-            // Replicates the "Thu, Fri, Sat, Sun..." pattern from the image
-            const date = new Date(dateString);
-            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            if (index === 0) return days[date.getDay()]; // Return the actual day name for today
-            return days[date.getDay()];
-        }
-        
-        function formatTime(localTime) {
-            const timePart = localTime.split(' ')[1];
-            const [hours, minutes] = timePart.split(':');
-            const h = parseInt(hours);
-            const ampm = h >= 12 ? 'pm' : 'am';
-            const hour12 = h % 12 || 12;
-            return `${hour12}:${minutes} ${ampm}`;
-        }
-        
         function setLoading(on) {
             if (on) {
-                statusEl.innerHTML = '<div class="loader" aria-hidden="true"></div><div>Loading...</div>';
+                statusEl.innerHTML = '<div class="loader" style="width:18px; height:18px;"></div><div style="color:var(--blue-2);">Loading...</div>';
                 searchBtn.disabled = true;
-                initialLoader.style.display = 'flex';
-                topStatusEl.style.display = 'none';
-                hourlyForecastSectionEl.style.display = 'none';
-                dailyForecastSectionEl.style.display = 'none';
-                errorMessageEl.style.display = 'none';
+                if (voiceInputBtn) voiceInputBtn.disabled = true;
             } else {
                 statusEl.innerHTML = '';
                 searchBtn.disabled = false;
-                initialLoader.style.display = 'none';
+                if (voiceInputBtn) voiceInputBtn.disabled = false;
             }
         }
 
         async function fetchWeather(query) {
-            if (!query) return;
-            setLoading(true);
-            // Must use forecast endpoint for hourly/daily data to match the image structure
-            const url = `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${encodeURIComponent(query)}&days=7`;
+            // Only set loading if not already in the middle of voice recognition
+            if (micIcon.textContent !== '🔴') {
+                setLoading(true);
+            }
+            
+            const url = `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${encodeURIComponent(query)}`;
 
             try {
                 const response = await fetch(url);
-                const data = await response.json();
-                
-                if (!response.ok || data.error) {
-                    throw new Error(data.error.message || 'Location not found. Please try again.');
+                if (!response.ok) {
+                    throw new Error('Location not found. Please try again.');
                 }
-                
-                weatherData = data;
+                const data = await response.json();
                 renderWeather(data);
             } catch (error) {
-                errorMessageEl.innerHTML = `Error: ${error.message}`;
-                errorMessageEl.style.display = 'block';
+                weatherInfoDiv.innerHTML = `<div style="text-align:center; color:var(--red); font-size:14px; line-height:1.6; padding: 20px;">Error: ${error.message}</div>`;
                 console.error("Error fetching weather data:", error);
                 setLoading(false);
             }
@@ -497,132 +280,47 @@
 
         function renderWeather(data) {
             setLoading(false);
-            topStatusEl.style.display = 'flex';
-            hourlyForecastSectionEl.style.display = 'block';
-            dailyForecastSectionEl.style.display = 'block';
 
-            const current = data.current;
-            const location = data.location;
-            const forecastDay = data.forecast.forecastday[0];
+            if (!data || !data.current || !data.location) {
+                weatherInfoDiv.innerHTML = `<div style="text-align:center; color:#999; font-size:14px; line-height:1.6; padding: 20px;">No weather data available.</div>`;
+                return;
+            }
 
-            // --- 1. Current Weather Display (Top Section) ---
-            currentTempEl.textContent = Math.round(current.temp_c);
-            currentIconEl.textContent = getWeatherIcon(current.condition.code, current.is_day);
-            weatherConditionHeaderEl.textContent = 'Weather';
-            currentConditionEl.textContent = current.condition.text;
+            const location = data.location.name + (data.location.region ? `, ${data.location.region}` : '');
+            const temp = Math.round(data.current.temp_c);
+            const conditionText = data.current.condition.text;
+            const feelsLike = Math.round(data.current.feelslike_c);
+            const humidity = data.current.humidity;
+            const windSpeed = data.current.wind_kph;
+            const localtime = data.location.localtime.split(' ')[1];
             
-            // Replicate the time/day format from the image
-            const dayName = getDayName(location.localtime.split(' ')[0], 0);
-            const time = formatTime(location.localtime);
-            dateTimeEl.textContent = `${dayName}, ${time}`;
-
-            // Precipitation needs forecast data (using daily chance of rain for current view)
-            precipitationEl.textContent = `Precipitation: ${forecastDay.day.daily_chance_of_rain || 0}%`; 
-            humidityEl.textContent = `Humidity: ${current.humidity}%`;
-            windEl.textContent = `Wind: ${Math.round(current.wind_kph)} km/h`;
-            
-            // --- 2. Hourly Chart ---
-            renderHourlyChart(data.forecast.forecastday);
-
-            // --- 3. Daily Forecast ---
-            renderDailyForecast(data.forecast.forecastday);
-        }
-        
-        function renderHourlyChart(forecastDays) {
-            const allHours = forecastDays.flatMap(day => day.hour);
-            const now = Date.now();
-            
-            // Find the hour index that is nearest to or just past the current time
-            const currentHourIndex = allHours.findIndex(h => h.time_epoch * 1000 > now) - 1;
-            
-            // Ensure we start at a valid hour and get the next 24 hours
-            let startIndex = Math.max(0, currentHourIndex);
-            let relevantHours = allHours.slice(startIndex, startIndex + 24); 
-
-            hourlyChartEl.innerHTML = '';
-            
-            const temps = relevantHours.map(h => h.temp_c);
-            const minTemp = Math.min(...temps);
-            const maxTemp = Math.max(...temps);
-            const tempRange = maxTemp - minTemp || 1;
-
-            // Set the width for horizontal scrolling
-            hourlyChartEl.style.width = `${(relevantHours.length * 50)}px`;
-            
-            // Inject the chart area
-            hourlyChartEl.innerHTML = '<div class="chart-area"></div>';
-            const chartArea = hourlyChartEl.querySelector('.chart-area');
-
-            relevantHours.forEach((hour, index) => {
-                const hourDate = new Date(hour.time_epoch * 1000);
-                const hourTime = hourDate.getHours();
-                
-                // Format time label (e.g., 5 pm, 2 am)
-                let label = hourTime === 0 ? '12 am' : (hourTime > 12 ? (hourTime - 12) + ' pm' : hourTime + ' am');
-                if (index === 0) {
-                    label = hourTime === 0 ? '12 am' : (hourTime > 12 ? (hourTime - 12) + ' pm' : hourTime + ' am');
-                } else if (hourTime % 3 !== 0 && index !== 0 && index !== relevantHours.length - 1) {
-                     // Only label every 3 hours to declutter, except for start/end
-                     label = '';
-                }
-
-
-                const temp = Math.round(hour.temp_c);
-                
-                // Calculate position for the dot (scale from bottom: 20px to 90px)
-                const normalizedHeight = (temp - minTemp) / tempRange;
-                const dotPositionY = 80 - (normalizedHeight * 60) - 5; // 80px (area height) - scaled height
-
-                // Horizontal position (50px per column center)
-                const positionX = index * 50 + 25; 
-                
-                // Dot element
-                const dotHtml = `<div class="temp-dot" style="left: ${positionX}px; top: ${dotPositionY}px;"></div>`;
-                chartArea.insertAdjacentHTML('beforeend', dotHtml);
-
-                // Data point (temp label and time label)
-                const pointHtml = `
-                    <div class="chart-data-point" style="left: ${positionX}px; top: 20px;">
-                        <div class="temp-value">${temp}°</div>
-                        <div class="time-label">${label}</div>
+            weatherInfoDiv.innerHTML = `
+                <div style="text-align: center;">
+                    <h2 style="font-size: 2.5em; margin: 0; color: #333;">${location}</h2>
+                    <p style="color: #666; font-size: 1.1em; margin-top: 5px;">${conditionText}</p>
+                </div>
+                <div style="text-align:center; font-size:64px; font-weight:700; margin:20px 0 10px; color:#333;">${temp}°C</div>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <div class="value">${feelsLike}°C</div>
+                        <div class="label">Feels Like</div>
                     </div>
-                `;
-                hourlyChartEl.insertAdjacentHTML('beforeend', pointHtml);
-            });
-        }
-
-
-        function renderDailyForecast(forecastDays) {
-            dailyForecastListEl.innerHTML = '';
-            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            const todayIndex = new Date(forecastDays[0].date).getDay();
-
-            forecastDays.slice(0, 7).forEach((dayData, index) => {
-                const date = new Date(dayData.date);
-                const dayName = dayNames[(todayIndex + index) % 7];
-                const maxTemp = Math.round(dayData.day.maxtemp_c);
-                const minTemp = Math.round(dayData.day.mintemp_c);
-                const icon = getWeatherIcon(dayData.day.condition.code, true);
-                
-                // Determine if it's the current day in the forecast.
-                const activeClass = index === 0 ? 'active' : '';
-
-                const itemHtml = `
-                    <div class="daily-item ${activeClass}">
-                        <div class="day-name">${dayName}</div>
-                        <div class="day-icon">${icon}</div>
-                        <div class="day-temp-range">
-                            ${maxTemp}°
-                            <span class="day-min-temp">${minTemp}°</span>
-                        </div>
+                    <div class="detail-item">
+                        <div class="value">${humidity}%</div>
+                        <div class="label">Humidity</div>
                     </div>
-                `;
-                dailyForecastListEl.innerHTML += itemHtml;
-            });
+                    <div class="detail-item">
+                        <div class="value">${windSpeed} kph</div>
+                        <div class="label">Wind</div>
+                    </div>
+                </div>
+                <p style="text-align: center; color: #666; font-size: 0.8em; margin-top: 20px;">
+                    Last updated: ${localtime}
+                </p>
+            `;
         }
-        
-        // --- Event Listeners and Initial Load ---
-        
+
+        // --- Event Listeners ---
         searchBtn.addEventListener('click', () => {
             const query = cityInput.value.trim();
             if (query) {
@@ -639,9 +337,72 @@
             }
         });
 
+
+        // --- Voice Input Implementation ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const isCompatible = !!SpeechRecognition;
+
+        if (isCompatible) {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false; 
+            recognition.lang = 'en-US'; 
+            recognition.interimResults = false;
+            
+            // Show the button if compatible (it's visible by default in the HTML)
+
+            recognition.onstart = function() {
+                micIcon.textContent = '🔴'; // Red dot indicates recording
+                micIcon.style.color = 'var(--red)';
+                statusEl.innerHTML = '<div style="color:var(--red);">Listening... Speak now.</div>';
+                searchBtn.disabled = true;
+                voiceInputBtn.disabled = true;
+            };
+
+            recognition.onresult = function(event) {
+                // Get the most confident result
+                const spokenCity = event.results[0][0].transcript;
+                cityInput.value = spokenCity;
+                statusEl.innerHTML = `<div>Recognized: <b>${spokenCity}</b></div>`;
+                
+                // Automatically search for the weather
+                fetchWeather(spokenCity);
+            };
+
+            recognition.onend = function() {
+                micIcon.textContent = '🎙️'; // Reset icon
+                micIcon.style.color = 'inherit';
+                // setLoading(false) is called inside fetchWeather
+            };
+
+            recognition.onerror = function(event) {
+                micIcon.textContent = '🎙️';
+                micIcon.style.color = 'inherit';
+                statusEl.innerHTML = `<div style="color:var(--red);">Voice Error: ${event.error}. Try again.</div>`;
+                searchBtn.disabled = false;
+                voiceInputBtn.disabled = false;
+                console.error("Speech Recognition Error:", event.error);
+            };
+
+            voiceInputBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                // To avoid starting recognition multiple times quickly
+                if (micIcon.textContent !== '🔴') {
+                    try {
+                        recognition.start();
+                    } catch(err) {
+                        console.warn("Recognition already started or error in starting:", err);
+                    }
+                }
+            });
+        } else {
+            // Hide the microphone button if the browser doesn't support the API
+            voiceInputBtn.style.display = 'none';
+            console.log("Web Speech API not supported in this browser.");
+        }
+
         // Initial load
         window.addEventListener('load', () => {
-            const defaultLocation = "Coimbatore"; 
+            const defaultLocation = "kondompatti sri eshwar college of engineering coimbatore";
             fetchWeather(defaultLocation);
         });
     </script>
