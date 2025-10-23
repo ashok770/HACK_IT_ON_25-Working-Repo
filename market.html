@@ -3,141 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Market Prices App</title>
+    <title>Agmarknet Price Tracker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&family=Noto+Sans+Tamil:wght@400;700&family=Noto+Sans+Telugu:wght@400;700&family=Noto+Sans+Malayalam:wght@400;700&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
         /* ================= THEME ================= */
         :root {
-          --primary-color: #2e7d32;
-          --secondary-color: #5d4037;
-          --background-color: #e8f5e9;
-          --header-bg: #2e7d32;
-          --header-text: #fff;
-          --text-color: #333;
-          --card-bg: #fff;
+            --primary-color: #2e7d32;
+            --secondary-color: #5d4037;
+            --background-color: #e8f5e9;
+            --header-bg: #2e7d32;
+            --header-text: #fff;
+            --text-color: #333;
+            --card-bg: #fff;
         }
 
         /* ================= BODY ================= */
         body {
-          background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
-          font-family: 'Montserrat', sans-serif;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          min-height: 100vh;
-          margin: 0;
-          overflow: hidden;
+            background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
+            /* Updated Font Stack to support Indian languages */
+            font-family: 'Noto Sans Devanagari', 'Noto Sans Tamil', 'Noto Sans Telugu', 'Noto Sans Malayalam', 'Noto Sans', 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
         }
 
         /* ================= iPHONE 16 PRO MAX FRAME ================= */
         .mobile-frame {
-          width: 430px;
-          height: 932px;
-          background: #fff;
-          border-radius: 50px;
-          border: 12px solid #111;
-          box-shadow: 0 25px 60px rgba(0,0,0,0.4);
-          overflow: hidden;
-          display: flex;
-          flex-direction: column;
-          position: relative;
+            width: 430px;
+            height: 932px;
+            background: #fff;
+            border-radius: 50px;
+            border: 12px solid #111;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
         }
 
-        /* Notch */
+        /* Notch (kept for visual fidelity) */
         .notch {
-          position: absolute;
-          top: 0;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 180px;
-          height: 30px;
-          background: #111;
-          border-bottom-left-radius: 20px;
-          border-bottom-right-radius: 20px;
-          z-index: 10;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 30px;
+            background: #111;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            z-index: 10;
         }
 
         /* ================= APP CONTAINER ================= */
         .container {
-          flex: 1;
-          background: var(--card-bg);
-          border-radius: 0;
-          padding: 25px;
-          text-align: center;
-          animation: fadeIn 0.8s ease-in-out;
-          overflow-y: auto;
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 0;
+            padding: 25px;
+            text-align: center;
+            animation: fadeIn 0.8s ease-in-out;
+            overflow-y: auto;
         }
 
         /* ================= HEADER ================= */
         .app-header h1 {
-          font-size: 22px;
-          color: var(--primary-color);
-          margin-bottom: 20px;
-          line-height: 1.4;
+            font-size: 22px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            line-height: 1.4;
         }
 
         /* ================= FORM / INPUT SECTION ================= */
         .input-section {
-          margin-bottom: 20px;
+            margin-bottom: 20px;
         }
 
         .input-group {
-          text-align: left;
-          margin-bottom: 15px;
+            text-align: left;
+            margin-bottom: 15px;
         }
 
         .input-group label {
-          font-size: 14px;
-          font-weight: 600;
-          display: block;
-          margin-bottom: 6px;
-          color: var(--text-color);
+            font-size: 14px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-color);
         }
         
         /* General Input Styling for Text Fields */
         .input-group input[type="text"] {
-          width: 100%;
-          padding: 12px 14px;
-          border-radius: 10px;
-          border: 1px solid #ccc;
-          font-size: 15px;
-          transition: 0.3s;
-          box-sizing: border-box; /* Crucial for full width */
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            font-size: 15px;
+            transition: 0.3s;
+            box-sizing: border-box; /* Crucial for full width */
+            font-family: inherit; /* Inherit multilingual font stack */
         }
         
         .input-group input[type="text"]:focus {
-          border-color: var(--primary-color);
-          box-shadow: 0 0 0 3px rgba(46,125,50,0.3);
-          outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(46,125,50,0.3);
+            outline: none;
         }
 
         /* ================= BUTTONS ================= */
         .btn {
-          width: 100%;
-          background: var(--primary-color);
-          color: #fff;
-          padding: 14px;
-          border-radius: 12px;
-          border: none;
-          cursor: pointer;
-          font-size: 16px;
-          font-weight: 600;
-          transition: 0.2s;
-          margin-top: 10px;
+            width: 100%;
+            background: var(--primary-color);
+            color: #fff;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: 0.2s;
+            margin-top: 10px;
         }
         .btn:hover { background: #1b5e20; transform: scale(1.03); }
         .btn:active { transform: scale(0.95); }
 
         /* ================= RESULTS SECTION ================= */
-        .results-section {
-          margin-top: 20px;
-          padding-top: 10px;
-          border-radius: 14px;
-          min-height: 80px;
-          font-size: 15px;
-          color: var(--text-color);
+        #prices-container {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-radius: 14px;
+            min-height: 80px;
+            font-size: 15px;
+            color: var(--text-color);
         }
         
         .search-info {
@@ -151,12 +154,13 @@
         }
 
         .price-card {
-          background: #fff;
-          padding: 15px;
-          margin: 15px 0;
-          border-radius: 10px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-          text-align: left;
+            background: #fff;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: left;
+            animation: fadeInUp 0.5s ease-out; /* Added animation to results */
         }
         
         .price-row {
@@ -180,13 +184,17 @@
             color: var(--text-color);
         }
 
-        .initial-message {
+        .initial-message, .loading-message, .error-message, .no-results-message {
             opacity: 0.7;
             font-size: 14px;
             text-align: center;
             padding: 10px;
         }
         
+        .error-message {
+            color: red;
+        }
+
         /* ================= ANIMATIONS ================= */
         @keyframes fadeIn {
           from { opacity: 0; transform: scale(0.95); }
@@ -198,47 +206,226 @@
           to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Floating bubbles background (omitted for brevity, assume present) */
     </style>
 </head>
 <body>
     <div class="background-animation"></div>
 
     <div class="mobile-frame">
+        <div class="notch"></div>
         <div class="container">
             <header class="app-header">
-                <h1>Agmarknet Price Tracker</h1>
+                <h1 id="main_title">Agmarknet Price Tracker</h1>
             </header>
 
             <form id="priceForm">
                 <section class="input-section">
                     <div class="input-group">
-                        <label for="commodity-input">Commodity</label>
+                        <label for="commodity-input" id="label_commodity">Commodity</label>
                         <input type="text" id="commodity-input" name="commodity" placeholder="e.g., Tomato" required>
                     </div>
 
                     <div class="input-group">
-                        <label for="district-input">District</label>
+                        <label for="district-input" id="label_district">District</label>
                         <input type="text" id="district-input" name="district" placeholder="e.g., Erode" required>
                     </div>
 
                     <div class="input-group">
-                        <label for="state-input">State (Optional)</label>
+                        <label for="state-input" id="label_state">State (Optional)</label>
                         <input type="text" id="state-input" name="state" placeholder="e.g., Tamil Nadu">
                     </div>
 
-                    <button type="submit" class="btn">Get Prices</button>
+                    <button type="submit" class="btn" id="btn_prices">Get Prices</button>
                 </section>
             </form>
 
             <section id="prices-container" class="results-section">
-                <p class="initial-message">Search the latest market prices of your commodity.</p>
+                <p id="initial_msg" class="initial-message">Search the latest market prices of your commodity.</p>
             </section>
         </div>
     </div>
 
     <script>
-        // Data structure based on Agmarknet results - EXPANDED DATASET
+        // Retrieve chosen language from local storage
+        const currentLanguage = localStorage.getItem("chosenLanguage") || "en";
+
+        // --- 1. TRANSLATION DICTIONARY FOR MARKET PRICES ---
+        const staticUITranslations = {
+            "hi": {
+                // UI & Messages
+                "Agmarknet Price Tracker": "एगमार्कनेट मूल्य ट्रैकर",
+                "Commodity": "वस्तु",
+                "District": "ज़िला",
+                "State (Optional)": "राज्य (वैकल्पिक)",
+                "Get Prices": "मूल्य प्राप्त करें",
+                "Search the latest market prices of your commodity.": "अपनी वस्तु के नवीनतम बाज़ार मूल्य खोजें।",
+                "Please enter both Commodity and District.": "कृपया वस्तु और ज़िला दोनों दर्ज करें।",
+                "Searching Agmarknet data...": "एगमार्कनेट डेटा खोजा जा रहा है...",
+                "No current prices found for this combination. Please try a different commodity or district.": "इस संयोजन के लिए कोई वर्तमान मूल्य नहीं मिला। कृपया कोई भिन्न वस्तु या ज़िला आज़माएँ।",
+                "result(s)": "परिणाम",
+                "for": "के लिए",
+                "in": "में",
+                // Data Labels (Used in createPriceRow)
+                "Arrival Date": "आगमन की तारीख",
+                "Market Location": "बाज़ार स्थान",
+                "Commodity Name": "वस्तु का नाम",
+                "Variety": "किस्म",
+                "Minimum Price": "न्यूनतम मूल्य",
+                "Modal Price": "मोडल मूल्य",
+                "Maximum Price": "अधिकतम मूल्य",
+                "Price Unit": "मूल्य इकाई",
+                // Placeholders (Used in applyMarketTranslation)
+                "e.g., Tomato": "उदा., टमाटर",
+                "e.g., Erode": "उदा., इरोड",
+                "e.g., Tamil Nadu": "उदा., तमिलनाडु"
+            },
+            "ta": {
+                // UI & Messages
+                "Agmarknet Price Tracker": "அக்மார்க்நெட் விலை கண்காணிப்பான்",
+                "Commodity": "சரக்கு",
+                "District": "மாவட்டம்",
+                "State (Optional)": "மாநிலம் (விரும்பினால்)",
+                "Get Prices": "விலைகளைப் பெறுக",
+                "Search the latest market prices of your commodity.": "உங்கள் சரக்கின் சமீபத்திய சந்தை விலைகளைத் தேடவும்.",
+                "Please enter both Commodity and District.": "தயவுசெய்து சரக்கு மற்றும் மாவட்டம் இரண்டையும் உள்ளிடவும்.",
+                "Searching Agmarknet data...": "அக்மார்க்நெட் தரவு தேடப்படுகிறது...",
+                "No current prices found for this combination. Please try a different commodity or district.": "இந்த சேர்க்கைக்கான தற்போதைய விலைகள் எதுவும் இல்லை. வேறு சரக்கு அல்லது மாவட்டத்தை முயற்சிக்கவும்.",
+                "result(s)": "முடிவு(கள்)",
+                "for": "க்கான",
+                "in": "இல்",
+                // Data Labels (Used in createPriceRow)
+                "Arrival Date": "வருகை தேதி",
+                "Market Location": "சந்தை இடம்",
+                "Commodity Name": "சரக்கின் பெயர்",
+                "Variety": "வகை",
+                "Minimum Price": "குறைந்தபட்ச விலை",
+                "Modal Price": "மாதிரி விலை",
+                "Maximum Price": "அதிகபட்ச விலை",
+                "Price Unit": "விலை அலகு",
+                // Placeholders (Used in applyMarketTranslation)
+                "e.g., Tomato": "எ.கா., தக்காளி",
+                "e.g., Erode": "எ.கா., ஈரோடு",
+                "e.g., Tamil Nadu": "எ.கா., தமிழ்நாடு"
+            },
+            "ml": {
+                // UI & Messages
+                "Agmarknet Price Tracker": "അഗ്മാർക്ക്‌നെറ്റ് വില ട്രാക്കർ",
+                "Commodity": "ചരക്ക്",
+                "District": "ജില്ല",
+                "State (Optional)": "സംസ്ഥാനം (ഓപ്ഷണൽ)",
+                "Get Prices": "വിലകൾ നേടുക",
+                "Search the latest market prices of your commodity.": "നിങ്ങളുടെ ചരക്കിന്റെ ഏറ്റവും പുതിയ കമ്പോള വിലകൾ തിരയുക.",
+                "Please enter both Commodity and District.": "ദയവായി ചരക്കും ജില്ലയും രണ്ടും നൽകുക.",
+                "Searching Agmarknet data...": "അഗ്മാർക്ക്‌നെറ്റ് ഡാറ്റ തിരയുന്നു...",
+                "No current prices found for this combination. Please try a different commodity or district.": "ഈ കോമ്പിനേഷനായി നിലവിലെ വിലകളൊന്നും കണ്ടെത്തിയില്ല. മറ്റൊരു ചരക്ക് അല്ലെങ്കിൽ ജില്ല ശ്രമിക്കുക.",
+                "result(s)": "ഫലം",
+                "for": "വേണ്ടി",
+                "in": "ഇൽ",
+                // Data Labels (Used in createPriceRow)
+                "Arrival Date": "എത്തിച്ചേർന്ന തീയതി",
+                "Market Location": "കമ്പോള സ്ഥാനം",
+                "Commodity Name": "ചരക്കിന്റെ പേര്",
+                "Variety": "ഇനം",
+                "Minimum Price": "കുറഞ്ഞ വില",
+                "Modal Price": "മാതൃകാ വില",
+                "Maximum Price": "പരമാവധി വില",
+                "Price Unit": "വില യൂണിറ്റ്",
+                // Placeholders (Used in applyMarketTranslation)
+                "e.g., Tomato": "ഉദാ: തക്കാളി",
+                "e.g., Erode": "ഉദാ: ഈറോഡ്",
+                "e.g., Tamil Nadu": "ഉദാ: തമിഴ്നാട്"
+            },
+            // --- ADDED TELUGU TRANSLATIONS ---
+            "te": {
+                // UI & Messages
+                "Agmarknet Price Tracker": "అగ్‌మార్క్‌నెట్ ధర ట్రాకర్",
+                "Commodity": "వస్తువు",
+                "District": "జిల్లా",
+                "State (Optional)": "రాష్ట్రం (ఐచ్ఛికం)",
+                "Get Prices": "ధరలను పొందండి",
+                "Search the latest market prices of your commodity.": "మీ వస్తువు యొక్క తాజా మార్కెట్ ధరలను శోధించండి.",
+                "Please enter both Commodity and District.": "దయచేసి వస్తువు మరియు జిల్లా రెండింటినీ నమోదు చేయండి.",
+                "Searching Agmarknet data...": "అగ్‌మార్క్‌నెట్ డేటా కోసం శోధిస్తోంది...",
+                "No current prices found for this combination. Please try a different commodity or district.": "ఈ కలయికకు ప్రస్తుత ధరలు కనుగొనబడలేదు. దయచేసి వేరే వస్తువు లేదా జిల్లాను ప్రయత్నించండి.",
+                "result(s)": "ఫలితం(లు)",
+                "for": "కోసం",
+                "in": "లో",
+                // Data Labels (Used in createPriceRow)
+                "Arrival Date": "రాక తేదీ",
+                "Market Location": "మార్కెట్ స్థానం",
+                "Commodity Name": "వస్తువు పేరు",
+                "Variety": "రకం",
+                "Minimum Price": "కనీస ధర",
+                "Modal Price": "మోడల్ ధర",
+                "Maximum Price": "గరిష్ట ధర",
+                "Price Unit": "ధర యూనిట్",
+                // Placeholders (Used in applyMarketTranslation)
+                "e.g., Tomato": "ఉదా., టమాటో",
+                "e.g., Erode": "ఉదా., ఈరోడ్",
+                "e.g., Tamil Nadu": "ఉదా., తమిళనాడు"
+            },
+            // --- ADDED FRENCH TRANSLATIONS ---
+            "fr": {
+                // UI & Messages
+                "Agmarknet Price Tracker": "Suivi des prix Agmarknet",
+                "Commodity": "Produit",
+                "District": "District",
+                "State (Optional)": "État (Facultatif)",
+                "Get Prices": "Obtenir les prix",
+                "Search the latest market prices of your commodity.": "Recherchez les derniers prix du marché de votre produit.",
+                "Please enter both Commodity and District.": "Veuillez entrer à la fois le produit et le district.",
+                "Searching Agmarknet data...": "Recherche des données Agmarknet...",
+                "No current prices found for this combination. Please try a different commodity or district.": "Aucun prix actuel trouvé pour cette combinaison. Veuillez essayer un autre produit ou district.",
+                "result(s)": "résultat(s)",
+                "for": "pour",
+                "in": "dans",
+                // Data Labels (Used in createPriceRow)
+                "Arrival Date": "Date d'arrivée",
+                "Market Location": "Emplacement du marché",
+                "Commodity Name": "Nom du produit",
+                "Variety": "Variété",
+                "Minimum Price": "Prix Minimum",
+                "Modal Price": "Prix Modal",
+                "Maximum Price": "Prix Maximum",
+                "Price Unit": "Unité de prix",
+                // Placeholders (Used in applyMarketTranslation)
+                "e.g., Tomato": "ex., Tomate",
+                "e.g., Erode": "ex., Erode",
+                "e.g., Tamil Nadu": "ex., Tamil Nadu"
+            }
+        };
+
+        // --- 2. TRANSLATION CORE LOGIC ---
+        // Utility to check if a value is in the dictionary (including deep search for result values)
+        function checkStaticTranslation(text, targetLang) {
+            if (targetLang === "en") return text;
+            const dict = staticUITranslations[targetLang];
+            if (dict && dict[text]) {
+                return dict[text];
+            }
+            return null;
+        }
+
+        async function translateText(text, targetLang) {
+            const staticResult = checkStaticTranslation(text, targetLang);
+            if (staticResult !== null) {
+                return staticResult;
+            }
+            
+            // Fallback to API if not in static dictionary (This is where your API call would be)
+            console.log(`[API CALL SIMULATED] for translation: ${text} to ${targetLang}. Using original text.`);
+            // In a real application, the following block would be uncommented and configured:
+            /*
+            const response = await fetch("YOUR_GEMINI_API_ENDPOINT_HERE", { ... });
+            // ... handle response and return translated text ...
+            */
+
+            // Since I cannot call the API, I will just return the original text for *dynamic* content.
+            return text;
+        }
+
+
+        // --- 3. DYNAMIC CROP DATA (Original Data remains unchanged) ---
         const agmarknetData = [
             // --- Tamil Nadu Entries ---
             {
@@ -246,24 +433,8 @@
                 "district": "Erode", 
                 "state": "Tamil Nadu",
                 "markets": [
-                    {
-                        "location": "Perundurai (Uzhavar Sandhai)",
-                        "variety": "Deshi",
-                        "min_price": "₹2600.0",
-                        "modal_price": "₹3000.0",
-                        "max_price": "₹3000.0",
-                        "price_unit": "Rs/Quintal",
-                        "arrival_date": "2025-09-25"
-                    },
-                    {
-                        "location": "Gobichettipalayam (Uzhavar Sandhai)",
-                        "variety": "Hybrid",
-                        "min_price": "₹2800.0",
-                        "modal_price": "₹3200.0",
-                        "max_price": "₹3500.0",
-                        "price_unit": "Rs/Quintal",
-                        "arrival_date": "2025-09-25"
-                    }
+                    { "location": "Perundurai (Uzhavar Sandhai)", "variety": "Deshi", "min_price": "₹2600.0", "modal_price": "₹3000.0", "max_price": "₹3000.0", "price_unit": "Rs/Quintal", "arrival_date": "2025-09-25" },
+                    { "location": "Gobichettipalayam (Uzhavar Sandhai)", "variety": "Hybrid", "min_price": "₹2800.0", "modal_price": "₹3200.0", "max_price": "₹3500.0", "price_unit": "Rs/Quintal", "arrival_date": "2025-09-25" }
                 ]
             },
             {
@@ -271,15 +442,7 @@
                 "district": "Coimbatore", 
                 "state": "Tamil Nadu",
                 "markets": [
-                    {
-                        "location": "Coimbatore Mandi",
-                        "variety": "Local",
-                        "min_price": "₹6500.0",
-                        "modal_price": "₹6800.0",
-                        "max_price": "₹7000.0",
-                        "price_unit": "Rs/Quintal",
-                        "arrival_date": "2025-09-26"
-                    }
+                    { "location": "Coimbatore Mandi", "variety": "Local", "min_price": "₹6500.0", "modal_price": "₹6800.0", "max_price": "₹7000.0", "price_unit": "Rs/Quintal", "arrival_date": "2025-09-26" }
                 ]
             },
             {
@@ -287,15 +450,7 @@
                 "district": "Tirunelveli", 
                 "state": "Tamil Nadu",
                 "markets": [
-                    {
-                        "location": "Tirunelveli Mandi",
-                        "variety": "Ponni",
-                        "min_price": "₹4200.0",
-                        "modal_price": "₹4500.0",
-                        "max_price": "₹4800.0",
-                        "price_unit": "Rs/Quintal",
-                        "arrival_date": "2025-09-26"
-                    }
+                    { "location": "Tirunelveli Mandi", "variety": "Ponni", "min_price": "₹4200.0", "modal_price": "₹4500.0", "max_price": "₹4800.0", "price_unit": "Rs/Quintal", "arrival_date": "2025-09-26" }
                 ]
             },
             // --- Kerala Entries ---
@@ -304,15 +459,7 @@
                 "district": "Ernakulam", 
                 "state": "Kerala",
                 "markets": [
-                    {
-                        "location": "Kochi Mandi",
-                        "variety": "Ordinary",
-                        "min_price": "₹2800.0",
-                        "modal_price": "₹3000.0",
-                        "max_price": "₹3150.0",
-                        "price_unit": "Rs/Quintal",
-                        "arrival_date": "2025-09-26"
-                    }
+                    { "location": "Kochi Mandi", "variety": "Ordinary", "min_price": "₹2800.0", "modal_price": "₹3000.0", "max_price": "₹3150.0", "price_unit": "Rs/Quintal", "arrival_date": "2025-09-26" }
                 ]
             },
             {
@@ -320,15 +467,7 @@
                 "district": "Idukki", 
                 "state": "Kerala",
                 "markets": [
-                    {
-                        "location": "Idukki Spices Market",
-                        "variety": "Garbled",
-                        "min_price": "₹450.0",
-                        "modal_price": "₹475.0",
-                        "max_price": "₹490.0",
-                        "price_unit": "Rs/Kg",
-                        "arrival_date": "2025-09-25"
-                    }
+                    { "location": "Idukki Spices Market", "variety": "Garbled", "min_price": "₹450.0", "modal_price": "₹475.0", "max_price": "₹490.0", "price_unit": "Rs/Kg", "arrival_date": "2025-09-25" }
                 ]
             },
             // --- Maharashtra/MP/Rajasthan Entries (Expanded) ---
@@ -337,15 +476,7 @@
                 "district": "Nashik", 
                 "state": "Maharashtra",
                 "markets": [
-                    {
-                        "location": "Lasalgaon",
-                        "variety": "Red Nasik",
-                        "min_price": "₹1500.0",
-                        "modal_price": "₹1800.0",
-                        "max_price": "₹2000.0",
-                        "price_unit": "Rs/Quintal",
-                        "arrival_date": "2025-09-26"
-                    }
+                    { "location": "Lasalgaon", "variety": "Red Nasik", "min_price": "₹1500.0", "modal_price": "₹1800.0", "max_price": "₹2000.0", "price_unit": "Rs/Quintal", "arrival_date": "2025-09-26" }
                 ]
             },
             {
@@ -353,15 +484,7 @@
                 "district": "Jaipur", 
                 "state": "Rajasthan",
                 "markets": [
-                    {
-                        "location": "Jaipur Grain Mandi",
-                        "variety": "Lal Bahadur",
-                        "min_price": "₹2350.0",
-                        "modal_price": "₹2450.0",
-                        "max_price": "₹2550.0",
-                        "price_unit": "Rs/Quintal",
-                        "arrival_date": "2025-09-26"
-                    }
+                    { "location": "Jaipur Grain Mandi", "variety": "Lal Bahadur", "min_price": "₹2350.0", "modal_price": "₹2450.0", "max_price": "₹2550.0", "price_unit": "Rs/Quintal", "arrival_date": "2025-09-26" }
                 ]
             },
             {
@@ -369,29 +492,41 @@
                 "district": "Indore", 
                 "state": "Madhya Pradesh",
                 "markets": [
-                    {
-                        "location": "Indore Grain Mandi",
-                        "variety": "Yellow Maize",
-                        "min_price": "₹2000.0",
-                        "modal_price": "₹2150.0",
-                        "max_price": "₹2300.0",
-                        "price_unit": "Rs/Quintal",
-                        "arrival_date": "2025-09-25"
-                    }
+                    { "location": "Indore Grain Mandi", "variety": "Yellow Maize", "min_price": "₹2000.0", "modal_price": "₹2150.0", "max_price": "₹2300.0", "price_unit": "Rs/Quintal", "arrival_date": "2025-09-25" }
                 ]
             }
         ];
-
-        function createPriceRow(label, value) {
+        
+        // --- 4. FUNCTION TO CREATE A TRANSLATED PRICE ROW ---
+        // This function translates the label but uses the original value, which is correct for price data.
+        async function createPriceRow(label, value) {
+            const translatedLabel = await translateText(label, currentLanguage);
             return `
                 <div class="price-row">
-                    <span class="price-label">${label}</span>
+                    <span class="price-label">${translatedLabel}</span>
                     <span class="price-value">${value}</span>
                 </div>
             `;
         }
 
-        document.getElementById('priceForm').addEventListener('submit', function(event) {
+        // --- 5. INITIAL UI TRANSLATION ON LOAD ---
+        async function applyMarketTranslation() {
+            // Translate static UI elements
+            document.getElementById('main_title').textContent = await translateText(document.getElementById('main_title').textContent, currentLanguage);
+            document.getElementById('label_commodity').textContent = await translateText("Commodity", currentLanguage);
+            document.getElementById('label_district').textContent = await translateText("District", currentLanguage);
+            document.getElementById('label_state').textContent = await translateText("State (Optional)", currentLanguage);
+            document.getElementById('btn_prices').textContent = await translateText("Get Prices", currentLanguage);
+            document.getElementById('initial_msg').textContent = await translateText("Search the latest market prices of your commodity.", currentLanguage);
+
+            // Translate placeholders
+            document.getElementById('commodity-input').placeholder = await translateText("e.g., Tomato", currentLanguage);
+            document.getElementById('district-input').placeholder = await translateText("e.g., Erode", currentLanguage);
+            document.getElementById('state-input').placeholder = await translateText("e.g., Tamil Nadu", currentLanguage);
+        }
+        
+        // --- 6. MAIN FORM SUBMISSION LOGIC (UPDATED FOR TRANSLATION) ---
+        document.getElementById('priceForm').addEventListener('submit', async function(event) {
             event.preventDefault();
             const resultsDiv = document.getElementById('prices-container');
             const commodity = document.getElementById('commodity-input').value.trim();
@@ -399,18 +534,19 @@
             const state = document.getElementById('state-input').value.trim();
             
             if (!commodity || !district) {
-                resultsDiv.innerHTML = '<p class="error-message">Please enter both Commodity and District.</p>';
+                const errorMsg = await translateText("Please enter both Commodity and District.", currentLanguage);
+                resultsDiv.innerHTML = `<p class="error-message">${errorMsg}</p>`;
                 return;
             }
 
-            resultsDiv.innerHTML = '<p class="loading-message">Searching Agmarknet data...</p>';
+            const loadingMsg = await translateText("Searching Agmarknet data...", currentLanguage);
+            resultsDiv.innerHTML = `<p class="loading-message">${loadingMsg}</p>`;
             
             // Normalize inputs for searching
             const searchCommodity = commodity.toLowerCase();
             const searchDistrict = district.toLowerCase();
 
             // Find the matching data entry
-            // NOTE: We now search by COMMODITY and DISTRICT (case-insensitive)
             const matchedEntries = agmarknetData.filter(item => 
                 item.commodity.toLowerCase() === searchCommodity &&
                 item.district.toLowerCase() === searchDistrict
@@ -419,31 +555,49 @@
             resultsDiv.innerHTML = ''; // Clear loading message
 
             if (matchedEntries.length > 0) {
-                // If the user searches "Tomato" in "Erode", they will see all markets in Erode for Tomato.
-                const infoHtml = `<p class="search-info">Displaying **${matchedEntries.length}** result(s) for '${commodity}' in '${district}'.</p>`;
+                const count = matchedEntries.length;
+                
+                // Get translated words for the info message
+                const resultWord = await translateText("result(s)", currentLanguage);
+                const forWord = await translateText("for", currentLanguage);
+                const inWord = await translateText("in", currentLanguage);
+
+                // For the info message, translate the commodity and district name itself.
+                // We assume Gemini can handle this, but for Indian languages, it's safer to use the original if a direct translation fails, 
+                // as the API might be used here in a real scenario.
+                const translatedCommodity = await translateText(commodity, currentLanguage);
+                const translatedDistrict = await translateText(district, currentLanguage);
+
+                // Construct info message with translated words and translated search terms
+                const infoHtml = `<p class="search-info">Displaying **${count}** ${resultWord} ${forWord} '${translatedCommodity}' ${inWord} '${translatedDistrict}'.</p>`;
                 resultsDiv.innerHTML = infoHtml;
                 
-                matchedEntries.forEach(dataEntry => {
-                    dataEntry.markets.forEach(market => {
+                // Process and display results
+                for (const dataEntry of matchedEntries) {
+                    for (const market of dataEntry.markets) {
                         const cardHtml = `
                             <div class="price-card">
-                                ${createPriceRow('Arrival Date', market.arrival_date)}
-                                ${createPriceRow('Market Location', market.location)}
-                                ${createPriceRow('Commodity Name', dataEntry.commodity)}
-                                ${createPriceRow('Variety', market.variety)}
-                                ${createPriceRow('Minimum Price', market.min_price)}
-                                ${createPriceRow('Modal Price', market.modal_price)}
-                                ${createPriceRow('Maximum Price', market.max_price)}
-                                ${createPriceRow('Price Unit', market.price_unit)}
+                                ${await createPriceRow('Arrival Date', market.arrival_date)}
+                                ${await createPriceRow('Market Location', market.location)}
+                                ${await createPriceRow('Commodity Name', dataEntry.commodity)}
+                                ${await createPriceRow('Variety', market.variety)}
+                                ${await createPriceRow('Minimum Price', market.min_price)}
+                                ${await createPriceRow('Modal Price', market.modal_price)}
+                                ${await createPriceRow('Maximum Price', market.max_price)}
+                                ${await createPriceRow('Price Unit', market.price_unit)}
                             </div>
                         `;
                         resultsDiv.innerHTML += cardHtml;
-                    });
-                });
+                    }
+                }
             } else {
-                resultsDiv.innerHTML = '<p class="no-results-message">No current prices found for this combination. Please try a different commodity or district.</p>';
+                const noResultsMsg = await translateText("No current prices found for this combination. Please try a different commodity or district.", currentLanguage);
+                resultsDiv.innerHTML = `<p class="no-results-message">${noResultsMsg}</p>`;
             }
         });
+
+        // Initialize translation on load
+        document.addEventListener('DOMContentLoaded', applyMarketTranslation);
     </script>
 </body>
 </html>
