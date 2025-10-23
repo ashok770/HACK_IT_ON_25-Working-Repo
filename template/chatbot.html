@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>👨‍🌾Agrova - Chatbot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&family=Noto+Sans+Tamil:wght@400;700&family=Noto+Sans+Telugu:wght@400;700&family=Noto+Sans+Malayalam:wght@400;700&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
 /* ================= THEME ================= */
 :root {
@@ -23,7 +29,8 @@
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Georgia', serif; 
+    /* Multilingual Font Stack Applied */
+    font-family: 'Noto Sans Devanagari', 'Noto Sans Tamil', 'Noto Sans Telugu', 'Noto Sans Malayalam', 'Noto Sans', 'Georgia', serif; 
     color: var(--primary-dark);
     display: flex;
     justify-content: center;
@@ -162,11 +169,29 @@ body {
     padding-left: 55px;
 }
 
-/* Robot avatar using SVG data URI */
+/* New style for the structured diagnosis card */
+.message.bot.structured-output {
+    background: var(--light-green); /* Light background for the structure */
+    color: var(--text-color); /* Dark text */
+    padding: 15px; /* Full padding adjustment for the card feel */
+    border-bottom-left-radius: 20px;
+    border-top-right-radius: 20px;
+    padding-left: 15px; /* Remove the avatar offset padding */
+    max-width: 90%; /* Make the structured output wider */
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+
+/* Hide the avatar from the structured output card */
+.message.bot.structured-output::before {
+    display: none; 
+}
+
+
+/* Robot avatar */
 .message.bot::before {
     content: "";
     position: absolute;
-    left: -45px;
+    left: 5px; /* Adjusted from -45px to be relative to the 55px padding */
     top: 5px;
     width: 40px;
     height: 40px;
@@ -175,6 +200,7 @@ body {
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     animation: bounceIn 0.5s ease;
 }
+
 
 /* ================= TYPING INDICATOR ================= */
 @keyframes blink {
@@ -273,13 +299,49 @@ body {
     fill: var(--off-white);
 }
 
-/* ================= Responsive Tweaks ================= */
-@media screen and (max-width: 500px) {
-    .mobile-frame {
-        width: 95%;
-        height: 90vh;
-        padding: 10px;
-    }
+/* ================= Structured Output Specific Styling ================= */
+/* New styles for improved card look */
+/* Base styling for the card container */
+.diagnosis-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Add internal gap for better separation */
+}
+
+/* Style for the diagnosis text section */
+.diagnosis-content {
+    border-left: 4px solid var(--primary-green);
+    padding-left: 12px;
+    margin-bottom: 0;
+}
+
+/* Style for the solution list */
+.diagnosis-card ol {
+    list-style: decimal;
+    padding-left: 25px;
+    margin-top: 0;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px; /* Tighten the list items slightly */
+}
+.diagnosis-card li {
+    margin-bottom: 0; /* Remove extra margin */
+    line-height: 1.4;
+}
+
+/* Remove margin from last list item for clean edge */
+.diagnosis-card ol li:last-child {
+    margin-bottom: 0;
+}
+
+
+/* Existing styles (modified to use the new card structure) */
+.diagnosis-container ol {
+    /* Removed old list styles to use .diagnosis-card ol */
+}
+.diagnosis-container li {
+    /* Removed old list styles to use .diagnosis-card li */
 }
     </style>
 </head>
@@ -290,7 +352,7 @@ body {
         <div class="app-container">
             <header class="app-header">
                 <h1>👨‍🌾Agrova</h1>
-                <p>Your AI Farming Assistant</p>
+                <p id="headerSubtitle">Your AI Farming Assistant</p>
             </header>
 
             <main class="chat-area" id="chatArea"></main>
@@ -315,206 +377,146 @@ const userInput = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 const micBtn = document.getElementById("micBtn");
 
-// ============================
-// TTS Helper Utilities
-// ============================
+// Retrieve chosen language from local storage
+let currentLanguage = localStorage.getItem("chosenLanguage") || "en";
 
-/**
- * Converts a Base64 string to an ArrayBuffer.
- * @param {string} base64 - Base64 encoded data string.
- * @returns {ArrayBuffer}
- */
-function base64ToArrayBuffer(base64) {
-    const binaryString = atob(base64);
-    const len = binaryString.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
+// Mock AI response for demonstration
+// The AI backend is EXPECTED to return a response in this structured format
+const MOCK_AI_RESPONSE = "Diagnosis: The plant is suffering from early blight (Alternaria solani), a common fungal disease characterized by dark, concentric spots on older leaves. This condition is accelerated by high humidity and poor air circulation. Solution: 1. Immediately prune and destroy all affected leaves and debris. 2. Apply a copper-based fungicide or Neem oil weekly. 3. Water the base of the plant only, avoiding wetting the foliage. 4. Ensure adequate spacing between plants to maximize air circulation.";
+
+
+// --- 1. TRANSLATION DICTIONARY (Copied from dashboard.html, only relevant keys kept) ---
+const translationDictionary = {
+    // Hindi (hi) Translations
+    "hi": {
+        "Your AI Farming Assistant": "आपका AI कृषि सहायक",
+        "Type your message...": "अपना संदेश टाइप करें...",
+        "🤖 Welcome to Kisan Mitra! I am your AI farming assistant. Ask me about crops, weather, or pests. You can now also use the **microphone button** for voice input!": "🤖 किसान मित्र में आपका स्वागत है! मैं आपका AI कृषि सहायक हूँ। फसलों, मौसम या कीटों के बारे में मुझसे पूछें। अब आप वॉइस इनपुट के लिए **माइक्रोफ़ोन बटन** का भी उपयोग कर सकते हैं!"
+    },
+    // Tamil (ta) Translations
+    "ta": {
+        "Your AI Farming Assistant": "உங்கள் AI விவசாய உதவியாளர்",
+        "Type your message...": "உங்கள் செய்தியை தட்டச்சு செய்யவும்...",
+        "🤖 Welcome to Kisan Mitra! I am your AI farming assistant. Ask me about crops, weather, or pests. You can now also use the **microphone button** for voice input!": "🤖 கிசான் மித்ராவுக்கு வரவேற்கிறோம்! நான் உங்கள் AI விவசாய உதவியாளர். பயிர்கள், வானிலை அல்லது பூச்சிகள் பற்றி என்னிடம் கேளுங்கள். இப்போது நீங்கள் வாய்ஸ் இன்புட்டிற்கு **மைக்ரோஃபோன் பட்டனையும்** பயன்படுத்தலாம்!"
+    },
+    // Malayalam (ml) Translations
+    "ml": {
+        "Your AI Farming Assistant": "നിങ്ങളുടെ AI കാർഷിക സഹായി",
+        "Type your message...": "നിങ്ങളുടെ സന്ദേശം ടൈപ്പ് ചെയ്യുക...",
+        "🤖 Welcome to Kisan Mitra! I am your AI farming assistant. Ask me about crops, weather, or pests. You can now also use the **microphone button** for voice input!": "🤖 കിസാൻ മിത്രയിലേക്ക് സ്വാഗതം! ഞാൻ നിങ്ങളുടെ AI കാർഷിക സഹായിയാണ്. വിളകൾ, കാലാവസ്ഥ, അല്ലെങ്കിൽ കീടങ്ങളെക്കുറിച്ച് എന്നോട് ചോദിക്കാവുന്നതാണ്. ഇപ്പോൾ നിങ്ങൾക്ക് വോയിസ് ഇൻപുട്ടിനായി **മൈക്രോഫോൺ ബട്ടണും** ഉപയോഗിക്കാം!"
     }
-    return bytes.buffer;
-}
+};
 
-/**
- * Utility function to write a string into a DataView.
- */
-function writeString(view, offset, string) {
-    for (let i = 0; i < string.length; i++) {
-        view.setUint8(offset + i, string.charCodeAt(i));
-    }
-}
-
-/**
- * Converts signed 16-bit PCM data buffer into a WAV Blob.
- * @param {Int16Array} pcmData - The PCM data.
- * @param {number} sampleRate - The audio sample rate.
- * @returns {Blob} The WAV audio blob.
- */
-function pcmToWav(pcmData, sampleRate) {
-    const numChannels = 1;
-    const bitDepth = 16;
-    const byteRate = sampleRate * numChannels * (bitDepth / 8);
-    const blockAlign = numChannels * (bitDepth / 8);
+// --- 2. TRANSLATION CORE LOGIC ---
+async function translateText(text, targetLang) {
+    if (targetLang === "en") return text;
     
-    // Total size of data + 36 (RIFF header size - 8)
-    const buffer = new ArrayBuffer(44 + pcmData.byteLength);
-    const view = new DataView(buffer);
-    let offset = 0;
-
-    /* RIFF identifier */
-    writeString(view, offset, 'RIFF'); offset += 4;
-    /* file length (data + 36) */
-    view.setUint32(offset, 36 + pcmData.byteLength, true); offset += 4;
-    /* RIFF type */
-    writeString(view, offset, 'WAVE'); offset += 4;
-    
-    /* format chunk identifier */
-    writeString(view, offset, 'fmt '); offset += 4;
-    /* format chunk length */
-    view.setUint32(offset, 16, true); offset += 4;
-    /* sample format (1 for PCM) */
-    view.setUint16(offset, 1, true); offset += 2;
-    /* number of channels */
-    view.setUint16(offset, numChannels, true); offset += 2;
-    /* sample rate */
-    view.setUint32(offset, sampleRate, true); offset += 4;
-    /* byte rate (sample rate * block align) */
-    view.setUint32(offset, byteRate, true); offset += 4;
-    /* block align (num channels * bit depth / 8) */
-    view.setUint16(offset, blockAlign, true); offset += 2;
-    /* bits per sample */
-    view.setUint16(offset, bitDepth, true); offset += 2;
-    
-    /* data chunk identifier */
-    writeString(view, offset, 'data'); offset += 4;
-    /* data chunk length (size of data) */
-    view.setUint32(offset, pcmData.byteLength, true); offset += 4;
-
-    // Copy PCM data
-    const pcmBytes = new Uint8Array(pcmData.buffer);
-    for (let i = 0; i < pcmData.byteLength; i++, offset++) {
-        view.setUint8(offset, pcmBytes[i]);
+    // Priority 1: Check the local dictionary
+    if (translationDictionary[targetLang] && translationDictionary[targetLang][text]) {
+        return translationDictionary[targetLang][text];
     }
 
-    return new Blob([view], { type: 'audio/wav' });
-}
+    // Priority 2: Use the external API for other languages (like Telugu/French)
+    console.log(`Calling API for translation: ${text} to ${targetLang}`);
+    
+    // NOTE: This uses an empty API key, which the Canvas environment will handle
+    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            contents: [{ parts: [{ text: `Translate the following short text to ${targetLang}: "${text}"` }] }],
+            systemInstruction: { parts: [{ text: "You are a translation service. Respond only with the translated text, do not add any quotes, context, or conversational filler." }] }
+        })
+    });
 
-
-// ============================
-// Text-to-Speech (TTS) Function
-// ============================
-async function speakText(text) {
-    const apiKey = ""; // API key is provided by the canvas environment
-    const model = "gemini-2.5-flash-preview-tts";
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
-    const payload = {
-        contents: [{
-            parts: [{ text: text }]
-        }],
-        generationConfig: {
-            responseModalities: ["AUDIO"],
-            speechConfig: {
-                voiceConfig: {
-                    prebuiltVoiceConfig: { voiceName: "Kore" } // A clear, firm voice
-                }
-            }
-        }
-    };
-
-    let attempt = 0;
-    const maxAttempts = 3;
-
-    while (attempt < maxAttempts) {
-        try {
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) {
-                // If it fails, rely on the status to determine error
-                throw new Error(`TTS API failed with status: ${response.status}`);
-            }
-
-            const result = await response.json();
-            const part = result?.candidates?.[0]?.content?.parts?.[0];
-            const audioData = part?.inlineData?.data;
-            const mimeType = part?.inlineData?.mimeType;
-
-            if (audioData && mimeType && mimeType.startsWith("audio/L16")) {
-                const sampleRateMatch = mimeType.match(/rate=(\d+)/);
-                if (!sampleRateMatch) throw new Error("Could not parse sample rate from MIME type.");
-                
-                const sampleRate = parseInt(sampleRateMatch[1], 10);
-                const pcmData = base64ToArrayBuffer(audioData);
-                
-                // API returns signed PCM16 audio data.
-                const pcm16 = new Int16Array(pcmData);
-                const wavBlob = pcmToWav(pcm16, sampleRate);
-                const audioUrl = URL.createObjectURL(wavBlob);
-                
-                const audio = new Audio(audioUrl);
-                audio.play();
-                
-                return; // Success, exit loop
-            } else {
-                throw new Error("TTS response missing audio data or invalid format.");
-            }
-
-        } catch (error) {
-            console.error(`TTS Attempt ${attempt + 1} failed:`, error);
-            attempt++;
-            if (attempt < maxAttempts) {
-                // Exponential backoff: 1s, 2s, 4s
-                const delay = Math.pow(2, attempt) * 1000;
-                await new Promise(resolve => setTimeout(resolve, delay));
-            } else {
-                console.error("TTS failed after maximum retries.");
-            }
-        }
+    if (!response.ok) {
+        console.error(`Translation API call failed for ${text}.`);
+        return text; 
     }
+    
+    const result = await response.json();
+    const translatedText = result.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+
+    return translatedText || text;
+}
+
+// ============================
+// Core function for structured output parsing and formatting
+// This adheres to the structure defined in agrove_pest_brief.md
+// **MODIFIED to use new CSS classes for attractive output**
+// ============================
+function checkAndFormatDiagnosis(text) {
+    // Regex to find Diagnosis and Solution keywords
+    const diagnosisMatch = text.match(/Diagnosis:\s*(.*?)(?=\s*Solution:|$)/is);
+    const solutionMatch = text.match(/Solution:\s*(.*)/is); 
+
+    if (!diagnosisMatch || !solutionMatch) {
+        return text; // Return original text if the mandatory structure isn't found
+    }
+
+    const diagnosis = diagnosisMatch[1].trim();
+    let solution = solutionMatch[1].trim();
+
+    // Technical Note: Convert numbered list into HTML list
+    // Splits the string by any digit followed by a dot, optionally preceded/followed by spaces
+    let listItems = solution.split(/\s*\d+\.\s*/).filter(item => item.trim() !== '');
+    let solutionContent = '';
+
+    if (listItems.length > 0) {
+        // Use <ol> for numbered steps - rely on .diagnosis-card ol/li for styling
+        solutionContent = '<ol>' + 
+                            listItems.map(item => `<li>${item.trim()}</li>`).join('') + 
+                            '</ol>';
+    } else {
+        // Fallback for non-list solutions
+        solutionContent = `<p class="leading-relaxed">${solution}</p>`; 
+    }
+    
+    // Output Structure: Generate final structured HTML using the new .diagnosis-card class
+    const formattedHtml = `
+        <div class="diagnosis-card">
+            
+            <p class="text-lg font-extrabold" style="color: var(--primary-dark);">
+                🌿 Diagnosis
+            </p>
+            <div class="diagnosis-content text-sm leading-relaxed">
+                ${diagnosis}
+            </div>
+            
+            <p class="text-lg font-extrabold pt-2 border-t-2 border-green-700" style="color: var(--primary-dark);">
+                ✅ Solution / Treatment Steps
+            </p>
+            <div class="solution-content">
+                ${solutionContent}
+            </div>
+            
+        </div>
+    `;
+
+    return formattedHtml;
 }
 
 
 // ============================
-// Helper: Process Bot Text for Clean Display
-// ============================
-/**
- * Converts text containing newlines and basic Markdown bolding into clean HTML.
- * This is crucial for fixing the "congested" output problem.
- * @param {string} text - The raw text received from the chatbot API.
- * @returns {string} The HTML string ready for display.
- */
-function processBotText(text) {
-    // 1. Basic HTML escaping (crucial when using innerHTML)
-    let safeText = text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-
-    // 2. Convert Markdown bolding (e.g., **Site Selection**) to <strong> tags
-    let formattedText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
-    // 3. Convert newlines to break tags for organized, un-congested output
-    return formattedText.replace(/\n/g, '<br>');
-}
-
-// ============================
-// Helper: Add message to chat (UPDATED)
+// Helper: Add message to chat
 // ============================
 function addMessage(content, sender) {
     const msg = document.createElement("div");
     msg.classList.add("message", sender);
     
-    if (sender === 'bot') {
-        // Use innerHTML and the processor for structured bot output
-        msg.innerHTML = processBotText(content); 
+    // Attempt to format the reply as a structured diagnosis
+    let formattedContent = checkAndFormatDiagnosis(content);
+    let isStructured = formattedContent !== content;
+
+    if (isStructured) {
+        // Apply structured output class and inject the generated HTML
+        msg.classList.add('structured-output');
+        msg.innerHTML = formattedContent;
     } else {
-        // User messages remain plain text
-        msg.textContent = content; 
+        // Standard chat message or welcome message (uses innerHTML to preserve bold/underline)
+        msg.innerHTML = content; 
     }
-    
+
     chatArea.appendChild(msg);
     chatArea.scrollTop = chatArea.scrollHeight;
 }
@@ -537,10 +539,18 @@ function removeTypingIndicator(indicator) {
 }
 
 // ============================
-// Chatbot API call (Placeholder)
+// Chatbot API call (MOCK for structured output demonstration)
 // ============================
-// NOTE: This function simulates an API call. 
 async function sendMessageToChatbot(message, sessionId) {
+    // This is a MOCK response for demonstrating the structured output.
+    // In a real application, the backend would call a multimodal AI model 
+    // and return the parsed structured text.
+    
+    if (message.toLowerCase().includes("pest") || message.toLowerCase().includes("disease")) {
+        // Return a mock structured response if keywords are detected
+        return MOCK_AI_RESPONSE; 
+    }
+    
     try {
         const data = { message: message, session_id: sessionId };
         // NOTE: The URL is set to a placeholder for your backend
@@ -559,14 +569,9 @@ async function sendMessageToChatbot(message, sessionId) {
         return result.response;
     } catch (error) {
         console.error("Error connecting to chatbot:", error);
-        // Fallback response simulating structured data to demonstrate the fix.
-        const lowerCaseMessage = message.toLowerCase();
-        if (lowerCaseMessage.includes("rice")) {
-            return "Here are the key first steps for growing rice, arranged for clarity:\n\n**1. Site Selection & Preparation**:\n- Choose a flat, well-drained field with access to water.\n- Level the land and build strong bunds (earthen dikes) to hold water effectively.\n\n**2. Variety Selection**:\n- Select a rice variety suitable for your local climate, soil type, and the duration of your growing season.\n\n**3. Water Management Plan**:\n- Develop a strategy for consistent water supply and drainage, as rice requires specific water levels throughout its growth.";
-        } else if (lowerCaseMessage.includes("pests")) { // NEW FALLBACK
-             return "To manage common pests like the Rice Stem Borer, consider:\n\n1. **Early Detection**: Regularly inspect plants for egg masses.\n2. **Biological Control**: Introduce parasitic wasps that target the borer eggs.\n3. **Chemical Control**: Use a selective insecticide only when infestation levels exceed economic thresholds.";
-        }
-        return "Sorry, I'm having trouble connecting to the AI model right now. (Check the console for API placeholder error).";
+        // Translate error message
+        const errorMessage = await translateText("Sorry, I'm having trouble connecting right now. Please try again later.", currentLanguage);
+        return errorMessage;
     }
 }
 
@@ -584,13 +589,19 @@ async function handleSend() {
 }
 
 // ============================
-// Handle Voice Input (Web Speech API)
+// Handle Voice Input
 // ============================
 let recognition;
 let isListening = false;
 
+// Function to safely get the CSS variable value
+function getCssVariable(name) {
+    // Get computed style of the body or root element
+    const root = document.documentElement;
+    return getComputedStyle(root).getPropertyValue(name).trim();
+}
+
 function handleVoiceInput() {
-    // Check if the browser supports SpeechRecognition
     if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
         addMessage("Your browser does not support the Web Speech API. Please use a modern browser like Chrome or Edge.", "bot");
         return;
@@ -602,18 +613,18 @@ function handleVoiceInput() {
     }
 
     recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'en-US'; // Set a language
+    
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
-    // Fired when speech recognition starts
-    recognition.onstart = () => {
+    recognition.onstart = async () => {
         isListening = true;
-        micBtn.style.background = '#81c784'; // Change color to show it's active
-        addMessage("Listening for your message...", "bot");
+        // Use a static color or the light green variable for listening state
+        micBtn.style.background = '#81c784'; // A bright indicator color
+        const listeningText = await translateText("Listening for your message...", currentLanguage);
+        addMessage(listeningText, "bot");
     };
 
-    // Fired when a result is received
     recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         if (transcript) {
@@ -622,31 +633,32 @@ function handleVoiceInput() {
         }
     };
 
-    // Fired when the speech recognition service has disconnected
     recognition.onend = () => {
         isListening = false;
-        // Reset color safely
-        micBtn.style.background = '';
-        micBtn.style.removeProperty('background'); // Ensure style is cleaned up
+        // Reset to the primary-light color value
+        micBtn.style.background = getCssVariable('--primary-light'); 
     };
 
-    // Fired when there's an error
-    recognition.onerror = (event) => {
+    recognition.onerror = async (event) => {
         console.error("Speech recognition error", event.error);
-        if (event.error === 'not-allowed') {
-            addMessage("Permission to use the microphone was denied. Please allow it in your browser settings.", "bot");
-        } else {
-            addMessage("Sorry, there was an error with voice input. Please try again.", "bot");
-        }
+        // Reset to the primary-light color value on error
+        micBtn.style.background = getCssVariable('--primary-light');
         isListening = false;
-        micBtn.style.background = ''; // Reset color
+        
+        let errorMsg;
+        if (event.error === 'not-allowed') {
+            errorMsg = await translateText("Permission to use the microphone was denied. Please allow it in your browser settings.", currentLanguage);
+        } else {
+            errorMsg = await translateText("Sorry, there was an error with voice input. Please try again.", currentLanguage);
+        }
+        addMessage(errorMsg, "bot");
     };
 
     recognition.start();
 }
 
 // ============================
-// Unified Bot Response Processor (UPDATED for TTS)
+// Unified Bot Response Processor
 // ============================
 async function processBotResponse(text) {
     const indicator = addTypingIndicator();
@@ -654,7 +666,7 @@ async function processBotResponse(text) {
     // Use a unique session ID per user (here just a fixed example)
     const sessionId = "user_abc123";
 
-    // Send user input to chatbot API
+    // Send user input to chatbot API (this will return the MOCK response if it detects "pest" or "disease")
     const botReply = await sendMessageToChatbot(text, sessionId);
 
     // Optional: mimic typing delay based on response length
@@ -663,33 +675,45 @@ async function processBotResponse(text) {
     setTimeout(() => {
         removeTypingIndicator(indicator);
         addMessage(botReply, "bot");
-        
-        // --- TTS INTEGRATION (AUDIO OUTPUT) ---
-        // Speak the bot's response aloud using the TTS model
-        speakText(botReply); 
-        // -------------------------------------
-        
     }, delay);
 }
 
 
 // ============================
-// Welcome message
+// Welcome message (TRANSLATED)
 // ============================
-function showWelcomeMessage() {
+async function showWelcomeMessage() {
+    const welcomeText = "🤖 Welcome to Kisan Mitra! I am your AI farming assistant. Ask me about crops, weather, or pests. You can now also use the **microphone button** for voice input!";
+    const translatedWelcome = await translateText(welcomeText, currentLanguage);
+    
     setTimeout(() => {
-        addMessage(
-            "🤖 Welcome to Agrova! I am your AI farming assistant. Ask me about crops, weather, or pests. You can now also use the **microphone button** for voice input and listen to my responses!",
-            "bot"
-        );
+        addMessage(translatedWelcome, "bot");
     }, 600);
 }
+
+// ============================
+// Apply Static UI Translation
+// ============================
+async function applyChatTranslation() {
+    // Translate Header Subtitle
+    const subtitle = document.getElementById("headerSubtitle");
+    subtitle.textContent = await translateText(subtitle.textContent, currentLanguage);
+
+    // Translate Placeholder
+    const placeholderText = "Type your message...";
+    const translatedPlaceholder = await translateText(placeholderText, currentLanguage);
+    userInput.placeholder = translatedPlaceholder;
+    
+    // Ensure the mic button starts with the correct color
+    micBtn.style.background = getCssVariable('--primary-light');
+}
+
 
 // ============================
 // Events
 // ============================
 sendBtn.addEventListener("click", handleSend);
-micBtn.addEventListener("click", handleVoiceInput); // NEW: Mic button handler
+micBtn.addEventListener("click", handleVoiceInput);
 
 userInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
@@ -698,8 +722,11 @@ userInput.addEventListener("keypress", (e) => {
     }
 });
 
-// Show welcome message on load
-showWelcomeMessage();
+// Run translation and welcome message on load
+document.addEventListener('DOMContentLoaded', () => {
+    applyChatTranslation();
+    showWelcomeMessage();
+});
     </script>
 </body>
 </html>
