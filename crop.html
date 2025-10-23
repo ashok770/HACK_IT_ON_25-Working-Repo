@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Lifecycle Tracker</title>
+    <!-- Multilingual Font Imports -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&family=Noto+Sans+Tamil:wght@400;700&family=Noto+Sans+Telugu:wght@400;700&family=Noto+Sans+Malayalam:wght@400;700&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ================= THEME ================= */
+        :root {
+            --primary-color: #2e7d32;
+            --secondary-color: #5d4037;
+            --background-color: #e8f5e9;
+            --header-bg: #2e7d32;
+            --header-text: #fff;
+            --text-color: #333;
+            --card-bg: #fff;
+        }
+
+        /* ================= BODY ================= */
+        body {
+            background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
+            /* Updated Font Stack to support Indian languages */
+            font-family: 'Noto Sans Devanagari', 'Noto Sans Tamil', 'Noto Sans Telugu', 'Noto Sans Malayalam', 'Noto Sans', 'Georgia', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* ================= iPHONE 16 PRO MAX FRAME ================= */
+        .mobile-frame {
+            width: 430px;
+            height: 932px;
+            background: #fff;
+            border-radius: 50px;
+            border: 12px solid #111;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Notch (kept for visual fidelity) */
+        .notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 30px;
+            background: #111;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            z-index: 10;
+        }
+
+        /* ================= APP CONTAINER ================= */
+        .container {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 0;
+            padding: 25px;
+            text-align: center;
+            animation: fadeIn 0.8s ease-in-out;
+            overflow-y: auto;
+        }
+
+        /* ================= HEADER ================= */
+        .container h1 {
+            font-size: 22px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        /* ================= FORM ================= */
+        .input-group { 
+            text-align: left;
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            font-size: 14px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-color);
+        }
+
+        .input-group select,
+        .input-group input[type="date"] {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 2px solid #ccc;
+            font-size: 15px;
+            transition: 0.3s;
+            background-color: #fff; 
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            position: relative;
+            font-family: inherit; /* Inherit new multilingual font stack */
+        }
+
+        /* Custom arrow for select */
+        .input-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666' width='24px' height='24px'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 30px;
+        }
+        
+        /* Clear default date picker icon for consistency */
+        .input-group input[type="date"]::-webkit-calendar-picker-indicator {
+            background: none;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            position: absolute;
+            right: 10px;
+            opacity: 1;
+        }
+
+        .input-group select:focus,
+        .input-group input[type="date"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(46,125,50,0.3);
+            outline: none;
+        }
+
+        /* ================= BUTTON ================= */
+        .btn {
+            width: 100%;
+            background: var(--primary-color);
+            color: #fff;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .btn:hover { background: #1b5e20; transform: scale(1.03); }
+        .btn:active { transform: scale(0.95); }
+
+        /* ================= RESULTS ================= */
+        #calendar_results {
+            margin-top: 22px;
+            background: var(--background-color);
+            padding: 16px;
+            border-radius: 14px;
+            min-height: 80px;
+            font-size: 15px;
+            color: var(--text-color);
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .initial-message, .error-message, .loading-message, .no-events-message {
+            opacity: 0.7;
+            font-size: 14px;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .error-message {
+            color: red;
+        }
+
+        .event-card {
+            background-color: #fff;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary-color);
+            text-align: left;
+            transition: transform 0.2s ease;
+        }
+
+        .event-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .event-card h3 {
+            margin: 0;
+            font-size: 16px;
+            color: var(--primary-color);
+        }
+
+        .event-card p {
+            margin: 4px 0 0;
+            font-size: 13px;
+            color: var(--secondary-color);
+        }
+
+        /* ================= ANIMATIONS ================= */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Floating bubbles background */
+        .background-animation {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .background-animation::before,
+        .background-animation::after {
+            content: '';
+            position: absolute;
+            width: 300px; height: 300px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            animation: float 10s infinite;
+        }
+        .background-animation::after {
+            width: 200px; height: 200px;
+            top: 20%; left: 70%;
+            animation-duration: 14s;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0); }
+            50% { transform: translateY(-40px) translateX(30px); }
+            100% { transform: translateY(0) translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation"></div>
+
+    <div class="mobile-frame">
+        <div class="container">
+            <header class="app-header">
+                <!-- Added ID for translation -->
+                <h1 id="main_title">🌱 Crop Lifecycle Tracker 🌾</h1>
+            </header>
+
+            <form id="cropForm">
+                <section class="input-section">
+                    <div class="input-group">
+                        <!-- Added ID for translation -->
+                        <label for="crop_name" id="label_crop">Select Crop:</label>
+                        <select name="crop_name" id="crop_name">
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <!-- Added ID for translation -->
+                        <label for="sowing_date" id="label_date">Sowing Date:</label>
+                        <input type="date" name="sowing_date" id="sowing_date" required>
+                    </div>
+
+                    <!-- Added ID for translation -->
+                    <button type="submit" class="btn" id="btn_submit">Generate Calendar</button>
+                </section>
+            </form>
+
+            <section id="calendar_results" class="schemes-section">
+                <!-- Added ID for translation -->
+                <p id="initial_msg" class="initial-message">Select a crop and sowing date to generate its lifecycle calendar.</p>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Retrieve chosen language from local storage
+        const currentLanguage = localStorage.getItem("chosenLanguage") || "en";
+
+        // --- 1. TRANSLATION DICTIONARY (Updated for Crop Lifecycle Tracker) ---
+        const staticUITranslations = {
+            "hi": {
+                "Crop Lifecycle Tracker": "फसल जीवनचक्र ट्रैकर",
+                "Select Crop:": "फसल चुनें:",
+                "Sowing Date:": "बुवाई की तारीख:",
+                "Generate Calendar": "कैलेंडर बनाएं",
+                "Select a crop and sowing date to generate its lifecycle calendar.": "इसका जीवनचक्र कैलेंडर बनाने के लिए एक फसल और बुवाई की तारीख चुनें।",
+                "Generating calendar...": "कैलेंडर बनाया जा रहा है...",
+                "Error: Please select a sowing date.": "त्रुटि: कृपया बुवाई की तारीख चुनें।",
+                "Error: Crop not found in data.": "त्रुटि: डेटा में फसल नहीं मिली।",
+                "No events found for this crop.": "इस फसल के लिए कोई इवेंट नहीं मिला।",
+                "to": "से",
+                "Sowing": "बुवाई",
+                "First Nitrogen application": "पहला नाइट्रोजन प्रयोग",
+                "Tasseling and second Nitrogen application": "टेसलिंग और दूसरा नाइट्रोजन प्रयोग",
+                "Silking and grain filling": "सिल्किंग और दाना भरना",
+                "Harvest": "कटाई",
+                "First Irrigation (Crown Root Initiation)": "पहली सिंचाई (क्राउन रूट पहल)",
+                "Second Irrigation (Jointing stage)": "दूसरी सिंचाई (जोड़ चरण)",
+                "Third Irrigation (Boot/Flowering stage)": "तीसरी सिंचाई (बूट/फूल आने का चरण)",
+                "Sowing in nursery": "नर्सरी में बुवाई",
+                "Transplanting to main field": "मुख्य खेत में रोपाई",
+                "Tillering (new shoots from base)": "टिलरिंग (आधार से नई टहनियाँ)",
+                "Panicle initiation": "पैनिकल की पहल",
+                "Flowering/Grain filling": "फूल आना/दाना भरना",
+                "Planting": "रोपण",
+                "First Earthing up": "पहला मिट्टी चढ़ाना",
+                "Second Earthing up": "दूसरा मिट्टी चढ़ाना",
+                "Tuber development": "कंद विकास",
+                "First Fertilizer application and Weeding": "पहला उर्वरक प्रयोग और निराई",
+                "Flowering begins": "फूल आना शुरू",
+                "First Harvest": "पहली कटाई",
+                "First Fertilizer application": "पहला उर्वरक प्रयोग",
+                "Budding/Flowering": "कलिका/फूल आना",
+                "Bunch emergence": "गुच्छा का उभरना",
+                "Planting stem cuttings": "तने की कटिंग रोपना",
+                "First weeding": "पहली निराई",
+                "Second weeding and Earthing up": "दूसरी निराई और मिट्टी चढ़ाना",
+                "Root bulking stage": "जड़ फूलने का चरण",
+                "Weeding and first intercultural operation": "निराई और पहला अंतर-सांस्कृतिक संचालन",
+                "Flowering and pod formation": "फूल आना और फली बनना",
+                "Pod filling": "फली भरना",
+                "Maize (Corn)": "मक्का (कॉर्न)",
+                "Wheat": "गेहूँ",
+                "Rice": "चावल",
+                "Potatoes": "आलू",
+                "Sugarcane": "गन्ना",
+                "Soybeans": "सोयाबीन",
+                "Cassava": "कसावा",
+                "Barley": "जौ",
+                "Tomatoes": "टमाटर",
+                "Bananas": "केले"
+            },
+            // Tamil (ta) Translations
+            "ta": {
+                "Crop Lifecycle Tracker": "பயிர் வாழ்க்கைச் சுழற்சி கண்காணிப்பான்",
+                "Select Crop:": "பயிரைத் தேர்ந்தெடுக்கவும்:",
+                "Sowing Date:": "விதைக்கும் தேதி:",
+                "Generate Calendar": "நாட்காட்டியை உருவாக்கவும்",
+                "Select a crop and sowing date to generate its lifecycle calendar.": "அதன் வாழ்க்கைச் சுழற்சி நாட்காட்டியை உருவாக்க ஒரு பயிர் மற்றும் விதைக்கும் தேதியைத் தேர்ந்தெடுக்கவும்.",
+                "Generating calendar...": "நாட்காட்டி உருவாக்கப்படுகிறது...",
+                "Error: Please select a sowing date.": "பிழை: விதைக்கும் தேதியைத் தேர்ந்தெடுக்கவும்.",
+                "Error: Crop not found in data.": "பிழை: தரவுகளில் பயிர் காணப்படவில்லை.",
+                "No events found for this crop.": "இந்தப் பயிருக்கு நிகழ்வுகள் எதுவும் காணப்படவில்லை.",
+                "to": "முதல்",
+                "Sowing": "விதைத்தல்",
+                "First Nitrogen application": "முதல் நைட்ரஜன் பயன்பாடு",
+                "Tasseling and second Nitrogen application": "தாஸ்லிங் மற்றும் இரண்டாவது நைட்ரஜன் பயன்பாடு",
+                "Silking and grain filling": "சில்க்கிங் மற்றும் தானிய நிரப்புதல்",
+                "Harvest": "அறுவடை",
+                "First Irrigation (Crown Root Initiation)": "முதல் நீர்ப்பாசனம் (கிரவுன் ரூட் ஆரம்பம்)",
+                "Second Irrigation (Jointing stage)": "இரண்டாவது நீர்ப்பாசனம் (இணைக்கும் நிலை)",
+                "Third Irrigation (Boot/Flowering stage)": "மூன்றாவது நீர்ப்பாசனம் (பூட்/பூக்கும் நிலை)",
+                "Sowing in nursery": "நாற்றங்காலில் விதைத்தல்",
+                "Transplanting to main field": "முதன்மைக் களத்திற்கு இடமாற்றம் செய்தல்",
+                "Tillering (new shoots from base)": "டில்லரிங் (அடிவாரத்தில் இருந்து புதிய தளிர்கள்)",
+                "Panicle initiation": "பானிகில் ஆரம்பம்",
+                "Flowering/Grain filling": "பூக்கும்/தானிய நிரப்புதல்",
+                "Planting": "நடவு செய்தல்",
+                "First Earthing up": "முதல் மண் அணைத்தல்",
+                "Second Earthing up": "இரண்டாவது மண் அணைத்தல்",
+                "Tuber development": "கிழங்கு வளர்ச்சி",
+                "First Fertilizer application and Weeding": "முதல் உரமிடுதல் மற்றும் களை எடுத்தல்",
+                "Flowering begins": "பூக்கும் ஆரம்பம்",
+                "First Harvest": "முதல் அறுவடை",
+                "First Fertilizer application": "முதல் உர பயன்பாடு",
+                "Budding/Flowering": "மொட்டு விடுதல்/பூக்கும்",
+                "Bunch emergence": "கொத்து வெளிப்படுதல்",
+                "Planting stem cuttings": "தண்டு வெட்டுகளை நடுதல்",
+                "First weeding": "முதல் களை எடுத்தல்",
+                "Second weeding and Earthing up": "இரண்டாவது களை எடுத்தல் மற்றும் மண் அணைத்தல்",
+                "Root bulking stage": "வேர் பெருக்கும் நிலை",
+                "Weeding and first intercultural operation": "களை எடுத்தல் மற்றும் முதல் ஊடுபயிர் செயல்பாடு",
+                "Flowering and pod formation": "பூக்கும் மற்றும் காய் அமைத்தல்",
+                "Pod filling": "காய் நிரப்புதல்",
+                "Maize (Corn)": "மக்காச்சோளம் (சோளம்)",
+                "Wheat": "கோதுமை",
+                "Rice": "அரிசி",
+                "Potatoes": "உருளைக்கிழங்கு",
+                "Sugarcane": "கரும்பு",
+                "Soybeans": "சோயாபீன்ஸ்",
+                "Cassava": "மரவள்ளிக்கிழங்கு",
+                "Barley": "பார்லி",
+                "Tomatoes": "தக்காளி",
+                "Bananas": "வாழைப்பழங்கள்"
+            },
+            // Malayalam (ml) Translations
+            "ml": {
+                "Crop Lifecycle Tracker": "വിളയുടെ ജീവിത ചക്രം ട്രാക്കർ",
+                "Select Crop:": "വിള തിരഞ്ഞെടുക്കുക:",
+                "Sowing Date:": "വിത്ത് വിതച്ച തീയതി:",
+                "Generate Calendar": "കലണ്ടർ സൃഷ്ടിക്കുക",
+                "Select a crop and sowing date to generate its lifecycle calendar.": "അതിൻ്റെ ജീവിത ചക്ര കലണ്ടർ സൃഷ്ടിക്കാൻ ഒരു വിളയും വിതച്ച തീയതിയും തിരഞ്ഞെടുക്കുക.",
+                "Generating calendar...": "കലണ്ടർ സൃഷ്ടിക്കുന്നു...",
+                "Error: Please select a sowing date.": "പിശക്: വിതച്ച തീയതി തിരഞ്ഞെടുക്കുക.",
+                "Error: Crop not found in data.": "പിശക്: ഡാറ്റയിൽ വിള കണ്ടെത്തിയില്ല.",
+                "No events found for this crop.": "ഈ വിളയ്ക്ക് ഇവൻ്റുകളൊന്നും കണ്ടെത്തിയില്ല.",
+                "to": "മുതൽ",
+                "Sowing": "വിത്ത് വിതയ്ക്കൽ",
+                "First Nitrogen application": "ആദ്യത്തെ നൈട്രജൻ പ്രയോഗം",
+                "Tasseling and second Nitrogen application": "ടാസ്സെലിംഗും രണ്ടാമത്തെ നൈട്രജൻ പ്രയോഗവും",
+                "Silking and grain filling": "സിൽക്കിംഗും ധാന്യം നിറയ്ക്കലും",
+                "Harvest": "വിളവെടുപ്പ്",
+                "First Irrigation (Crown Root Initiation)": "ആദ്യത്തെ ജലസേചനം (ക്രൗൺ റൂട്ട് ഇനിഷ്യേഷൻ)",
+                "Second Irrigation (Jointing stage)": "രണ്ടാമത്തെ ജലസേചനം (ജോയിൻ്റിംഗ് ഘട്ടം)",
+                "Third Irrigation (Boot/Flowering stage)": "മൂന്നാമത്തെ ജലസേചനം (ബൂട്ട്/പൂവിടുന്ന ഘട്ടം)",
+                "Sowing in nursery": "നേഴ്സറിയിൽ വിത്ത് വിതയ്ക്കൽ",
+                "Transplanting to main field": "പ്രധാന വയലിലേക്ക് പറിച്ചുനടൽ",
+                "Tillering (new shoots from base)": "കള പറിക്കൽ (അടിത്തട്ടിൽ നിന്നുള്ള പുതിയ ചിനപ്പുകൾ)",
+                "Panicle initiation": "പാനിക്കിൾ ആരംഭം",
+                "Flowering/Grain filling": "പൂവിടൽ/ധാന്യം നിറയ്ക്കൽ",
+                "Planting": "നടീൽ",
+                "First Earthing up": "ആദ്യത്തെ മണ്ണ് കൂട്ടൽ",
+                "Second Earthing up": "രണ്ടാമത്തെ മണ്ണ് കൂട്ടൽ",
+                "Tuber development": "കിഴങ്ങ് വികസനം",
+                "First Fertilizer application and Weeding": "ആദ്യത്തെ വളപ്രയോഗവും കള പറിക്കലും",
+                "Flowering begins": "പൂവിടൽ ആരംഭിക്കുന്നു",
+                "First Harvest": "ആദ്യത്തെ വിളവെടുപ്പ്",
+                "First Fertilizer application": "ആദ്യത്തെ വളപ്രയോഗം",
+                "Budding/Flowering": "മുകുളനം/പൂവിടൽ",
+                "Bunch emergence": "കുല പുറത്തുവരൽ",
+                "Planting stem cuttings": "തണ്ട് മുറിച്ചെടുത്ത് നടീൽ",
+                "First weeding": "ആദ്യത്തെ കള പറിക്കൽ",
+                "Second weeding and Earthing up": "രണ്ടാമത്തെ കള പറിക്കലും മണ്ണ് കൂട്ടലും",
+                "Root bulking stage": "വേരുകൾ വലുതാകുന്ന ഘട്ടം",
+                "Weeding and first intercultural operation": "കള പറിക്കലും ആദ്യത്തെ ഇടവിള പ്രവർത്തനവും",
+                "Flowering and pod formation": "പൂവിടലും കായ് രൂപീകരണവും",
+                "Pod filling": "കായ് നിറയ്ക്കൽ",
+                "Maize (Corn)": "ചോളം",
+                "Wheat": "ഗോതമ്പ്",
+                "Rice": "നെല്ല്",
+                "Potatoes": "ഉരുളക്കിഴങ്ങ്",
+                "Sugarcane": "കരിമ്പ്",
+                "Soybeans": "സോയാബീൻസ്",
+                "Cassava": "മരച്ചീനി",
+                "Barley": "ബാർലി",
+                "Tomatoes": "തക്കാളി",
+                "Bananas": "വാഴപ്പഴം"
+            }
+        };
+
+        // --- 2. TRANSLATION CORE LOGIC ---
+        async function translateText(text, targetLang) {
+            if (targetLang === "en") return text;
+            
+            // Priority 1: Check the local dictionary for instant, reliable translation
+            if (staticUITranslations[targetLang] && staticUITranslations[targetLang][text]) {
+                return staticUITranslations[targetLang][text];
+            }
+
+            // Priority 2: Use the external API for less common phrases (e.g., Telugu, French, or unknown data)
+            console.log(`Calling API for translation: ${text} to ${targetLang}`);
+            
+            const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: `Translate the following short text to ${targetLang}: "${text}"` }] }],
+                    systemInstruction: { parts: [{ text: "You are a translation service. Respond only with the translated text, do not add any quotes, context, or conversational filler." }] }
+                })
+            });
+
+            if (!response.ok) {
+                console.error(`Translation API call failed for ${text}. Using original text.`);
+                return text; 
+            }
+            
+            const result = await response.json();
+            const translatedText = result.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+
+            return translatedText || text;
+        }
+
+
+        // --- 3. DYNAMIC CROP DATA (Original Data) ---
+        const originalCropData = {
+            "crops": [
+                {"name": "Maize (Corn)", "timeline": "80–110 days", "key_events": [{"day": "0", "event": "Sowing"}, {"day": "20–25", "event": "First Nitrogen application"}, {"day": "40–50", "event": "Tasseling and second Nitrogen application"}, {"day": "60–70", "event": "Silking and grain filling"}, {"day": "90–110", "event": "Harvest"}]},
+                {"name": "Wheat", "timeline": "120–150 days", "key_events": [{"day": "0", "event": "Sowing"}, {"day": "21", "event": "First Irrigation (Crown Root Initiation)"}, {"day": "40", "event": "Second Irrigation (Jointing stage)"}, {"day": "60–65", "event": "Third Irrigation (Boot/Flowering stage)"}, {"day": "120+", "event": "Harvest"}]},
+                {"name": "Rice", "timeline": "100–150 days", "key_events": [{"day": "0", "event": "Sowing in nursery"}, {"day": "20–25", "event": "Transplanting to main field"}, {"day": "30–40", "event": "Tillering (new shoots from base)"}, {"day": "60–70", "event": "Panicle initiation"}, {"day": "80–90", "event": "Flowering/Grain filling"}, {"day": "100+", "event": "Harvest"}]},
+                {"name": "Potatoes", "timeline": "90–120 days", "key_events": [{"day": "0", "event": "Planting"}, {"day": "5–10", "event": "First Irrigation for germination"}, {"day": "20–25", "event": "First Earthing up"}, {"day": "40–50", "event": "Second Earthing up"}, {"day": "60–70", "event": "Tuber development"}, {"day": "90+", "event": "Harvest"}]},
+                {"name": "Sugarcane", "timeline": "300–540 days", "key_events": [{"day": "0", "event": "Planting"}, {"day": "30–40", "event": "First Irrigation and Budding"}, {"day": "90–120", "event": "Tillering and first weeding"}, {"day": "150–200", "event": "Cane elongation"}, {"day": "300+", "event": "Harvest"}]},
+                {"name": "Soybeans", "timeline": "90–120 days", "key_events": [{"day": "0", "event": "Sowing"}, {"day": "20–30", "event": "Weeding and first intercultural operation"}, {"day": "40–50", "event": "Flowering and pod formation"}, {"day": "60–70", "event": "Pod filling"}, {"day": "90+", "event": "Harvest"}]},
+                {"name": "Cassava", "timeline": "240–540 days", "key_events": [{"day": "0", "event": "Planting stem cuttings"}, {"day": "30–45", "event": "First weeding"}, {"day": "60–90", "event": "Second weeding and Earthing up"}, {"day": "150+", "event": "Root bulking stage"}, {"day": "240+", "event": "Harvest"}]},
+                {"name": "Barley", "timeline": "110–130 days", "key_events": [{"day": "0", "event": "Sowing"}, {"day": "20–25", "event": "First Irrigation"}, {"day": "40–45", "event": "Second Irrigation"}, {"day": "70–80", "event": "Flowering"}, {"day": "110+", "event": "Harvest"}]},
+                {"name": "Tomatoes", "timeline": "90–120 days", "key_events": [{"day": "0", "event": "Transplanting"}, {"day": "5–10", "event": "First Irrigation"}, {"day": "20–25", "event": "First Fertilizer application and Weeding"}, {"day": "40–50", "event": "Flowering begins"}, {"day": "80–90", "event": "First Harvest"}]},
+                {"name": "Bananas", "timeline": "365–540 days", "key_events": [{"day": "0", "event": "Planting"}, {"day": "90–120", "event": "First Fertilizer application"}, {"day": "180–240", "event": "Budding/Flowering"}, {"day": "270–300", "event": "Bunch emergence"}, {"day": "365+", "event": "Harvest"}]}
+            ]
+        };
+
+        let translatedCropData; // Holds the translated version of the crop data
+
+        // --- 4. DATA INITIALIZATION AND TRANSLATION ---
+        async function translateAndPopulateData() {
+            // Translate the main UI elements
+            document.getElementById('main_title').textContent = await translateText(document.getElementById('main_title').textContent, currentLanguage);
+            document.getElementById('label_crop').textContent = await translateText("Select Crop:", currentLanguage);
+            document.getElementById('label_date').textContent = await translateText("Sowing Date:", currentLanguage);
+            document.getElementById('btn_submit').textContent = await translateText("Generate Calendar", currentLanguage);
+            document.getElementById('initial_msg').textContent = await translateText("Select a crop and sowing date to generate its lifecycle calendar.", currentLanguage);
+
+            // Create a deep copy of the original data to translate
+            translatedCropData = JSON.parse(JSON.stringify(originalCropData));
+
+            // Translate all dynamic text fields (Crop Names and Event Descriptions)
+            for (const crop of translatedCropData.crops) {
+                // Translate Crop Name
+                crop.name = await translateText(crop.name, currentLanguage);
+
+                // Translate Key Events
+                for (const event of crop.key_events) {
+                    event.event = await translateText(event.event, currentLanguage);
+                }
+            }
+
+            // Populate crop dropdown with translated names
+            const cropSelect = document.getElementById('crop_name');
+            cropSelect.innerHTML = ''; // Clear existing options
+            translatedCropData.crops.forEach(crop => {
+                const option = document.createElement('option');
+                option.value = crop.name; // Use translated name as value for easy lookup
+                option.textContent = crop.name;
+                cropSelect.appendChild(option);
+            });
+        }
+
+
+        // --- 5. CALENDAR GENERATION LOGIC (UPDATED) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Run initial setup and translation
+            translateAndPopulateData();
+
+            document.getElementById('cropForm').addEventListener('submit', async function(event) {
+                event.preventDefault();
+                const resultsDiv = document.getElementById('calendar_results');
+                
+                // Use translated loading message
+                const loadingMsg = await translateText("Generating calendar...", currentLanguage);
+                resultsDiv.innerHTML = `<p class="loading-message">${loadingMsg}</p>`;
+
+                const cropName = document.getElementById('crop_name').value;
+                const sowingDateStr = document.getElementById('sowing_date').value;
+
+                if (!sowingDateStr) {
+                    const errorMsg = await translateText("Error: Please select a sowing date.", currentLanguage);
+                    resultsDiv.innerHTML = `<p class="error-message">${errorMsg}</p>`;
+                    return;
+                }
+
+                const sowingDate = new Date(sowingDateStr);
+                // Find the crop using the *translated* name
+                const selectedCrop = translatedCropData.crops.find(crop => crop.name === cropName);
+
+                if (!selectedCrop) {
+                    const errorMsg = await translateText("Error: Crop not found in data.", currentLanguage);
+                    resultsDiv.innerHTML = `<p class="error-message">${errorMsg}</p>`;
+                    return;
+                }
+
+                const calendarEvents = [];
+                const rangeTo = await translateText("to", currentLanguage);
+                
+                selectedCrop.key_events.forEach(eventData => {
+                    const dayStr = eventData.day.replace('–', '-').replace('+', '');
+                    let startDay, endDay;
+
+                    if (dayStr.includes('-')) {
+                        [startDay, endDay] = dayStr.split('-').map(Number);
+                    } else {
+                        startDay = Number(dayStr);
+                        endDay = startDay;
+                    }
+
+                    const eventDate = new Date(sowingDate);
+                    eventDate.setDate(sowingDate.getDate() + startDay);
+                    
+                    let dateDisplay;
+                    // Format date ranges using the translated "to" word
+                    if (startDay !== endDay) {
+                        const endDate = new Date(sowingDate);
+                        endDate.setDate(sowingDate.getDate() + endDay);
+                        dateDisplay = `${eventDate.toISOString().slice(0, 10)} ${rangeTo} ${endDate.toISOString().slice(0, 10)}`;
+                    } else {
+                        dateDisplay = eventDate.toISOString().slice(0, 10);
+                    }
+
+                    calendarEvents.push({
+                        event: eventData.event, // Already translated
+                        date: dateDisplay
+                    });
+                });
+
+                resultsDiv.innerHTML = '';
+                if (calendarEvents.length > 0) {
+                    calendarEvents.forEach(event => {
+                        const eventCard = document.createElement('div');
+                        eventCard.classList.add('event-card');
+                        // Event is already translated
+                        eventCard.innerHTML = `<h3>${event.event}</h3><p>${event.date}</p>`;
+                        resultsDiv.appendChild(eventCard);
+                    });
+                } else {
+                    const noEventsMsg = await translateText("No events found for this crop.", currentLanguage);
+                    resultsDiv.innerHTML = `<p class="no-events-message">${noEventsMsg}</p>`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
