@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Weather App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg1: #d3eafc;
+            --bg2: #f0f8ff;
+            --accent: #00d4ff;
+            --card: rgba(255, 255, 255, 0.06);
+            --glass: rgba(255, 255, 255, 0.06);
+            --glass-strong: rgba(255, 255, 255, 0.08);
+            --muted: rgba(255, 255, 255, 0.75);
+            --green: #4caf50;
+            --red: #f44336;
+            --blue-1: #00d4ff;
+            --blue-2: #00a4d1;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background: linear-gradient(135deg, var(--bg1), var(--bg2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .mobile-frame {
+            width: 430px;
+            height: 932px;
+            background: #e1f5fe; /* Light blue from image */
+            border-radius: 50px;
+            border: 12px solid #111;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .mobile-frame::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 30px;
+            background: #111;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+
+        .container {
+            flex: 1;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            background: var(--bg2);
+            animation: fadeIn 0.8s ease-in-out;
+            color: #333;
+        }
+        
+        .panel {
+            background: #fff;
+            border-radius: 18px;
+            padding: 26px;
+            box-shadow: 0 10px 30px rgba(2, 6, 23, 0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0 0 6px 0;
+            font-size: 20px;
+            letter-spacing: 0.2px;
+            color: var(--blue-2);
+        }
+
+        p.lead {
+            margin: 0 0 18px 0;
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .search-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-container input {
+            flex: 1;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            background: transparent;
+            color: inherit;
+            font-size: 15px;
+            outline: none;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-btn {
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            background: linear-gradient(135deg, var(--blue-1), var(--blue-2));
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(3, 169, 244, 0.2);
+            transition: transform .12s ease;
+        }
+
+        .search-btn:active {
+            transform: translateY(1px) scale(.997);
+        }
+
+        .voice-btn {
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(255, 107, 107, 0.2);
+            transition: transform .12s ease;
+        }
+
+        .voice-btn:active {
+            transform: translateY(1px) scale(.997);
+        }
+
+        .voice-btn.listening {
+            background: linear-gradient(135deg, #ff3333, #ff6666);
+            animation: pulse 1.5s infinite;
+        }
+        
+        .card {
+            position: relative;
+            padding: 28px;
+            border-radius: 18px;
+            overflow: hidden;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: #e1f5fe;
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: 0 20px 40px rgba(2, 6, 23, 0.15);
+        }
+        
+        .temp-display {
+            font-size: 64px;
+            font-weight: 700;
+            text-align: center;
+            margin: 20px 0 10px;
+        }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .detail-item {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 15px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.05);
+            color: #333;
+        }
+        
+        .detail-item .value {
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        
+        .detail-item .label {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .loader {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 4px solid rgba(0,0,0,0.1);
+            border-top-color: var(--blue-1);
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        .voice-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .voice-status .pulse {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--red);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
+            }
+            
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
+            }
+            
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
+            }
+        }
+        
+        @media (max-width: 880px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-frame">
+        <div class="container">
+            <div class="panel">
+                <h1>Weather App</h1>
+                <p class="lead">Get the current weather for any location.</p>
+                <div class="search-container">
+                    <input type="text" id="cityInput" placeholder="Enter city name..." />
+                    <button id="searchBtn" class="search-btn">Get Weather</button>
+                    <button id="voiceBtn" class="voice-btn" title="Speak location">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 15C13.6569 15 15 13.6569 15 12V5C15 3.34315 13.6569 2 12 2C10.3431 2 9 3.34315 9 5V12C9 13.6569 10.3431 15 12 15Z" fill="white"/>
+                            <path d="M19 12C19 15.866 15.866 19 12 19C8.13401 19 5 15.866 5 12" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M12 22V19" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M8 22H16" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+                <div style="margin-top:18px; display:flex; gap:10px; align-items:center">
+                    <div id="status" style="display:flex; align-items:center;"></div>
+                </div>
+                <div id="voiceStatus" class="voice-status" style="display: none;">
+                    <div class="pulse"></div>
+                    <span id="voiceStatusText">Listening...</span>
+                </div>
+            </div>
+
+            <div class="card" id="weatherCard">
+                <div id="weatherInfo">
+                    <div style="text-align:center; color:var(--muted); font-size:14px; line-height:1.6;">
+                        <div class="loader" aria-hidden="true"></div>
+                        <div style="margin-top: 10px;">Loading weather...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = 'c9be3e0c0a524f52b6a174659253108';
+        const weatherInfoDiv = document.getElementById('weatherInfo');
+        const cityInput = document.getElementById('cityInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const voiceBtn = document.getElementById('voiceBtn');
+        const statusEl = document.getElementById('status');
+        const voiceStatusEl = document.getElementById('voiceStatus');
+        const voiceStatusText = document.getElementById('voiceStatusText');
+        const weatherCard = document.getElementById('weatherCard');
+
+        // Check if browser supports speech recognition
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+        
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US'; // Default language, but it will auto-detect
+            
+            recognition.onstart = function() {
+                voiceBtn.classList.add('listening');
+                voiceStatusEl.style.display = 'flex';
+                voiceStatusText.textContent = 'Listening...';
+            };
+            
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                cityInput.value = transcript;
+                voiceStatusText.textContent = `Heard: "${transcript}"`;
+                setTimeout(() => {
+                    fetchWeather(transcript);
+                }, 1000);
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error', event.error);
+                voiceStatusText.textContent = `Error: ${event.error}`;
+                setTimeout(() => {
+                    voiceStatusEl.style.display = 'none';
+                }, 3000);
+                voiceBtn.classList.remove('listening');
+            };
+            
+            recognition.onend = function() {
+                voiceBtn.classList.remove('listening');
+                setTimeout(() => {
+                    voiceStatusEl.style.display = 'none';
+                }, 3000);
+            };
+        } else {
+            voiceBtn.disabled = true;
+            voiceBtn.title = "Speech recognition not supported in your browser";
+        }
+
+        function setLoading(on) {
+            if (on) {
+                statusEl.innerHTML = '<div class="loader" aria-hidden="true"></div><div>Loading...</div>';
+                searchBtn.disabled = true;
+                voiceBtn.disabled = true;
+            } else {
+                statusEl.innerHTML = '';
+                searchBtn.disabled = false;
+                if (SpeechRecognition) {
+                    voiceBtn.disabled = false;
+                }
+            }
+        }
+
+        async function fetchWeather(query) {
+            setLoading(true);
+            const url = `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${encodeURIComponent(query)}`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('Location not found. Please try again.');
+                }
+                const data = await response.json();
+                renderWeather(data);
+            } catch (error) {
+                weatherInfoDiv.innerHTML = `<div style="text-align:center; color:var(--red); font-size:14px; line-height:1.6;">Error: ${error.message}</div>`;
+                console.error("Error fetching weather data:", error);
+                setLoading(false);
+            }
+        }
+
+        function renderWeather(data) {
+            setLoading(false);
+
+            if (!data || !data.current || !data.location) {
+                weatherInfoDiv.innerHTML = `<div style="text-align:center; color:var(--muted); font-size:14px; line-height:1.6;">No weather data available.</div>`;
+                return;
+            }
+
+            const location = data.location.name;
+            const temp = Math.round(data.current.temp_c);
+            const conditionText = data.current.condition.text;
+            const feelsLike = Math.round(data.current.feelslike_c);
+            const humidity = data.current.humidity;
+            const windSpeed = data.current.wind_kph;
+            const isDay = data.current.is_day;
+            const localtime = data.location.localtime.split(' ')[1];
+            
+            weatherInfoDiv.innerHTML = `
+                <div style="text-align: center;">
+                    <h2 style="font-size: 2.5em; margin: 0; color: #333;">${location}</h2>
+                    <p style="color: #666; font-size: 1.1em; margin-top: 5px;">${conditionText}</p>
+                </div>
+                <div style="text-align:center; font-size:64px; font-weight:700; margin:20px 0 10px; color:#333;">${temp}°C</div>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <div class="value">${feelsLike}°C</div>
+                        <div class="label">Feels Like</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="value">${humidity}%</div>
+                        <div class="label">Humidity</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="value">${windSpeed} kph</div>
+                        <div class="label">Wind</div>
+                    </div>
+                </div>
+                <p style="text-align: center; color: #666; font-size: 0.8em; margin-top: 20px;">
+                    Last updated: ${localtime}
+                </p>
+            `;
+        }
+
+        // Event listeners
+        searchBtn.addEventListener('click', () => {
+            const query = cityInput.value.trim();
+            if (query) {
+                fetchWeather(query);
+            }
+        });
+        
+        cityInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const query = cityInput.value.trim();
+                if (query) {
+                    fetchWeather(query);
+                }
+            }
+        });
+
+        voiceBtn.addEventListener('click', () => {
+            if (recognition) {
+                recognition.start();
+            }
+        });
+
+        // Initial load
+        window.addEventListener('load', () => {
+            const defaultLocation = "kondompatti sri eshwar college of engineering coimbatore";
+            fetchWeather(defaultLocation);
+        });
+    </script>
+</body>
+</html>
