@@ -316,6 +316,168 @@ const sendBtn = document.getElementById("sendBtn");
 const micBtn = document.getElementById("micBtn");
 
 // ============================
+// TTS Helper Utilities
+// ============================
+
+/**
+ * Converts a Base64 string to an ArrayBuffer.
+ * @param {string} base64 - Base64 encoded data string.
+ * @returns {ArrayBuffer}
+ */
+function base64ToArrayBuffer(base64) {
+    const binaryString = atob(base64);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes.buffer;
+}
+
+/**
+ * Utility function to write a string into a DataView.
+ */
+function writeString(view, offset, string) {
+    for (let i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+    }
+}
+
+/**
+ * Converts signed 16-bit PCM data buffer into a WAV Blob.
+ * @param {Int16Array} pcmData - The PCM data.
+ * @param {number} sampleRate - The audio sample rate.
+ * @returns {Blob} The WAV audio blob.
+ */
+function pcmToWav(pcmData, sampleRate) {
+    const numChannels = 1;
+    const bitDepth = 16;
+    const byteRate = sampleRate * numChannels * (bitDepth / 8);
+    const blockAlign = numChannels * (bitDepth / 8);
+    
+    // Total size of data + 36 (RIFF header size - 8)
+    const buffer = new ArrayBuffer(44 + pcmData.byteLength);
+    const view = new DataView(buffer);
+    let offset = 0;
+
+    /* RIFF identifier */
+    writeString(view, offset, 'RIFF'); offset += 4;
+    /* file length (data + 36) */
+    view.setUint32(offset, 36 + pcmData.byteLength, true); offset += 4;
+    /* RIFF type */
+    writeString(view, offset, 'WAVE'); offset += 4;
+    
+    /* format chunk identifier */
+    writeString(view, offset, 'fmt '); offset += 4;
+    /* format chunk length */
+    view.setUint32(offset, 16, true); offset += 4;
+    /* sample format (1 for PCM) */
+    view.setUint16(offset, 1, true); offset += 2;
+    /* number of channels */
+    view.setUint16(offset, numChannels, true); offset += 2;
+    /* sample rate */
+    view.setUint32(offset, sampleRate, true); offset += 4;
+    /* byte rate (sample rate * block align) */
+    view.setUint32(offset, byteRate, true); offset += 4;
+    /* block align (num channels * bit depth / 8) */
+    view.setUint16(offset, blockAlign, true); offset += 2;
+    /* bits per sample */
+    view.setUint16(offset, bitDepth, true); offset += 2;
+    
+    /* data chunk identifier */
+    writeString(view, offset, 'data'); offset += 4;
+    /* data chunk length (size of data) */
+    view.setUint32(offset, pcmData.byteLength, true); offset += 4;
+
+    // Copy PCM data
+    const pcmBytes = new Uint8Array(pcmData.buffer);
+    for (let i = 0; i < pcmData.byteLength; i++, offset++) {
+        view.setUint8(offset, pcmBytes[i]);
+    }
+
+    return new Blob([view], { type: 'audio/wav' });
+}
+
+
+// ============================
+// Text-to-Speech (TTS) Function
+// ============================
+async function speakText(text) {
+    const apiKey = ""; // API key is provided by the canvas environment
+    const model = "gemini-2.5-flash-preview-tts";
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+    const payload = {
+        contents: [{
+            parts: [{ text: text }]
+        }],
+        generationConfig: {
+            responseModalities: ["AUDIO"],
+            speechConfig: {
+                voiceConfig: {
+                    prebuiltVoiceConfig: { voiceName: "Kore" } // A clear, firm voice
+                }
+            }
+        }
+    };
+
+    let attempt = 0;
+    const maxAttempts = 3;
+
+    while (attempt < maxAttempts) {
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                // If it fails, rely on the status to determine error
+                throw new Error(`TTS API failed with status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            const part = result?.candidates?.[0]?.content?.parts?.[0];
+            const audioData = part?.inlineData?.data;
+            const mimeType = part?.inlineData?.mimeType;
+
+            if (audioData && mimeType && mimeType.startsWith("audio/L16")) {
+                const sampleRateMatch = mimeType.match(/rate=(\d+)/);
+                if (!sampleRateMatch) throw new Error("Could not parse sample rate from MIME type.");
+                
+                const sampleRate = parseInt(sampleRateMatch[1], 10);
+                const pcmData = base64ToArrayBuffer(audioData);
+                
+                // API returns signed PCM16 audio data.
+                const pcm16 = new Int16Array(pcmData);
+                const wavBlob = pcmToWav(pcm16, sampleRate);
+                const audioUrl = URL.createObjectURL(wavBlob);
+                
+                const audio = new Audio(audioUrl);
+                audio.play();
+                
+                return; // Success, exit loop
+            } else {
+                throw new Error("TTS response missing audio data or invalid format.");
+            }
+
+        } catch (error) {
+            console.error(`TTS Attempt ${attempt + 1} failed:`, error);
+            attempt++;
+            if (attempt < maxAttempts) {
+                // Exponential backoff: 1s, 2s, 4s
+                const delay = Math.pow(2, attempt) * 1000;
+                await new Promise(resolve => setTimeout(resolve, delay));
+            } else {
+                console.error("TTS failed after maximum retries.");
+            }
+        }
+    }
+}
+
+
+// ============================
 // Helper: Process Bot Text for Clean Display
 // ============================
 /**
@@ -398,8 +560,11 @@ async function sendMessageToChatbot(message, sessionId) {
     } catch (error) {
         console.error("Error connecting to chatbot:", error);
         // Fallback response simulating structured data to demonstrate the fix.
-        if (message.toLowerCase().includes("rice")) {
+        const lowerCaseMessage = message.toLowerCase();
+        if (lowerCaseMessage.includes("rice")) {
             return "Here are the key first steps for growing rice, arranged for clarity:\n\n**1. Site Selection & Preparation**:\n- Choose a flat, well-drained field with access to water.\n- Level the land and build strong bunds (earthen dikes) to hold water effectively.\n\n**2. Variety Selection**:\n- Select a rice variety suitable for your local climate, soil type, and the duration of your growing season.\n\n**3. Water Management Plan**:\n- Develop a strategy for consistent water supply and drainage, as rice requires specific water levels throughout its growth.";
+        } else if (lowerCaseMessage.includes("pests")) { // NEW FALLBACK
+             return "To manage common pests like the Rice Stem Borer, consider:\n\n1. **Early Detection**: Regularly inspect plants for egg masses.\n2. **Biological Control**: Introduce parasitic wasps that target the borer eggs.\n3. **Chemical Control**: Use a selective insecticide only when infestation levels exceed economic thresholds.";
         }
         return "Sorry, I'm having trouble connecting to the AI model right now. (Check the console for API placeholder error).";
     }
@@ -481,7 +646,7 @@ function handleVoiceInput() {
 }
 
 // ============================
-// Unified Bot Response Processor
+// Unified Bot Response Processor (UPDATED for TTS)
 // ============================
 async function processBotResponse(text) {
     const indicator = addTypingIndicator();
@@ -498,6 +663,12 @@ async function processBotResponse(text) {
     setTimeout(() => {
         removeTypingIndicator(indicator);
         addMessage(botReply, "bot");
+        
+        // --- TTS INTEGRATION (AUDIO OUTPUT) ---
+        // Speak the bot's response aloud using the TTS model
+        speakText(botReply); 
+        // -------------------------------------
+        
     }, delay);
 }
 
@@ -508,7 +679,7 @@ async function processBotResponse(text) {
 function showWelcomeMessage() {
     setTimeout(() => {
         addMessage(
-            "🤖 Welcome to Agrova! I am your AI farming assistant. Ask me about crops, weather, or pests. You can now also use the **microphone button** for voice input!",
+            "🤖 Welcome to Agrova! I am your AI farming assistant. Ask me about crops, weather, or pests. You can now also use the **microphone button** for voice input and listen to my responses!",
             "bot"
         );
     }, 600);

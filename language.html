@@ -1,0 +1,194 @@
+    ```html
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Language | ഭാഷ തിരഞ്ഞെടുക്കുക</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+        --primary-green: #298c56;
+        --light-green: #e9faee;
+        --off-white: #FFFFFF;
+        --primary-dark: #1f5c3c;
+        --primary-light: #6ec094;
+        --secondary-yellow: #FFD700;
+        --shadow-color: rgba(41, 140, 86, 0.4);
+        }
+
+        body {
+        font-family: 'Noto Sans Devanagari', 'Noto Sans Tamil', 'Noto Sans Telugu', 'Noto Sans Malayalam', 'Noto Sans', 'Georgia', serif;
+        color: var(--primary-dark);
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        min-height: 100vh; 
+        margin: 0;
+        background: linear-gradient(135deg, #d1e3d6, #e9faee, #d1e3d6);
+        }
+
+        .mobile-frame {
+        width: 440px; 
+        height: 956px; 
+        background: var(--off-white);
+        border-radius: 40px; 
+        border: 10px solid #111;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.6), inset 0 0 15px var(--primary-dark), 0 0 0 5px var(--primary-light);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        padding: 25px 15px 15px;
+        }
+
+        .dynamic-island {
+        width: 100px; 
+        height: 30px; 
+        background: #000; 
+        border-radius: 0 0 15px 15px; 
+        position: absolute; 
+        top: 10px; 
+        left: 50%; 
+        transform: translateX(-50%); 
+        z-index: 20;
+        box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+        }
+
+        .app-content {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow-y: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        padding: 40px 0;
+        }
+        .app-content::-webkit-scrollbar { display: none; }
+
+        .language-card {
+        background: linear-gradient(180deg, var(--off-white) 50%, var(--light-green));
+        backdrop-filter: blur(10px);
+        padding: 40px 30px;
+        border-radius: 25px;
+        box-shadow: 0 15px 50px var(--shadow-color);
+        text-align: center;
+        border: 1px solid rgba(0,0,0,0.05);
+        width: 95%; 
+        max-width: 380px;
+        }
+
+        .language-card h2 {
+        font-family: 'Georgia', serif;
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--primary-dark);
+        margin-bottom: 25px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        position: relative;
+        }
+
+        .language-card h2::after {
+        content: '';
+        display: block;
+        width: 50px;
+        height: 4px;
+        background: var(--secondary-yellow);
+        border-radius: 2px;
+        margin: 10px auto 0;
+        }
+
+        .select-wrapper { position: relative; margin-top: 30px; width: 100%; }
+        select { 
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-color: var(--light-green);
+        padding: 18px 50px 18px 20px; 
+        font-size: 1.1rem; 
+        border-radius: 15px;
+        border: 2px solid var(--primary-green);
+        cursor: pointer;
+        color: var(--primary-dark);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        width: 100%;
+        font-weight: 600;
+        }
+        select:focus {
+        outline: none;
+        border-color: var(--secondary-yellow);
+        }
+        .select-wrapper::after {
+        content: "\f0d7"; 
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        position: absolute;
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
+        color: var(--primary-dark);
+        font-size: 1.2rem;
+        pointer-events: none;
+        }
+
+        button {
+        border-radius: 9999px;
+        padding: 1rem 3rem; 
+        color: var(--primary-dark);
+        font-weight: 800;
+        text-align: center;
+        box-shadow: 0 8px 20px rgba(255,165,0,0.4);
+        letter-spacing: 1px;
+        background: linear-gradient(145deg, #FFA500, #FFD700, #FFA500);
+        display: inline-block;
+        border: 3px solid var(--off-white);
+        margin-top: 40px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 1.1rem;
+        }
+        button:hover {
+        filter: brightness(1.05);
+        }
+
+        @media screen and (max-width: 500px) {
+        .mobile-frame { width: 95%; height: 90vh; padding: 10px; border-radius: 30px; }
+        .language-card h2 { font-size: 1.5rem; }
+        select, button { font-size: 1rem; }
+        }
+    </style>
+    </head>
+    <body>
+    <div class="mobile-frame">
+        <div class="dynamic-island"></div>
+        <div class="app-content">
+        <div class="language-card">
+            <h2>Select Your Language</h2>
+            <div class="select-wrapper">
+            <select id="language">
+                <option value="en">English (English)</option>
+                <option value="hi">हिन्दी (Hindi)</option>
+                <option value="ta">தமிழ் (Tamil)</option>
+                <option value="ml" selected>മലയാളം (Malayalam)</option>
+                <option value="te">తెలుగు (Telugu)</option>
+                <option value="fr">Français (French)</option>
+            </select>
+            </div>
+            <button onclick="saveLanguage()">Next</button>
+        </div>
+        </div>
+    </div>
+
+    <script>
+        function saveLanguage() {
+        const lang = document.getElementById('language').value;
+        localStorage.setItem("chosenLanguage", lang);
+        window.location.href = "mainpage.html"; // Redirects to mainpage.html
+        }
+    </script>
+    </body>
+    </html>
+    ```
+        

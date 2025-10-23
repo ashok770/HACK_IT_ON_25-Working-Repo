@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Agrova App - Dashboard</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+        <script src="https://cdn.tailwindcss.com"></script>
+
+        <!-- 1. Import Noto Sans fonts for proper rendering of Devanagari (Hindi), Tamil, Telugu, AND MALAYALAM scripts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&family=Noto+Sans+Tamil:wght@400;700&family=Noto+Sans+Telugu:wght@400;700&family=Noto+Sans+Malayalam:wght@400;700&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
+
+
+        <style>
+            :root {
+                --primary-green: #298c56;
+                --light-green: #e9faee;
+                --off-white: #FFFFFF;
+                --frame-bg-start: #298c56;
+                --frame-bg-end: #6ec094;
+                --primary-dark: #1f5c3c;
+                --primary-light: #6ec094;
+                --secondary-yellow: #FFD700;
+            }
+
+            /* Set font stack to prioritize Noto Sans variants for proper non-Latin rendering, including Malayalam */
+            body {
+                font-family: 'Noto Sans Devanagari', 'Noto Sans Tamil', 'Noto Sans Telugu', 'Noto Sans Malayalam', 'Noto Sans', 'Georgia', serif;
+                color: var(--primary-dark);
+                overflow: hidden;
+                background: linear-gradient(135deg, #d1e3d6 0%, #e9faee 100%); 
+                background-size: 200% 200%;
+                animation: background-shift 20s infinite alternate;
+            }
+
+            /* ... (Rest of CSS for visual appeal) ... */
+            @keyframes background-shift {
+                0% { background-position: 0% 50%; }
+                100% { background-position: 100% 50%; }
+            }
+            .mobile-frame {
+                width: 430px;
+                height: 932px;
+                background: linear-gradient(to bottom, var(--frame-bg-start), var(--frame-bg-end));
+                border-radius: 50px;
+                border: 10px solid #111;
+                box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                position: relative;
+                padding: 15px;
+                transition: all 0.5s ease-in-out;
+                animation: pulse-border 5s infinite alternate;
+            }
+
+            @keyframes pulse-border {
+                0% { box-shadow: 0 25px 60px rgba(0,0,0,0.4), inset 0 0 15px rgba(255, 255, 255, 0.1); }
+                100% { box-shadow: 0 30px 70px rgba(0,0,0,0.6), inset 0 0 25px rgba(255, 255, 255, 0.2); }
+            }
+
+            .app-container {
+                padding-bottom: 20px;
+                overflow-y: auto;
+                position: relative;
+                scrollbar-width: none;
+            }
+            .app-container::-webkit-scrollbar {
+                display: none;
+            }
+
+            .app-container::-webkit-scrollbar-thumb {
+                background-color: var(--primary-dark);
+                border-radius: 10px;
+                border: 3px solid var(--off-white);
+                animation: scroll-fade 3s infinite alternate;
+            }
+            
+            @keyframes scroll-fade {
+                0% { opacity: 0.3; }
+                100% { opacity: 0.8; }
+            }
+            
+            .header-title {
+                font-family: 'Georgia', 'Noto Sans Devanagari', 'Noto Sans Tamil', 'Noto Sans Telugu', 'Noto Sans Malayalam', serif;
+                font-size: 2.2rem;
+                font-weight: 700; 
+                text-align: center;
+                color: var(--off-white);
+                text-shadow: 0 0 10px rgba(255,255,255,0.5);
+                animation: glow 2.5s infinite alternate, wiggle 10s infinite alternate;
+                letter-spacing: 1px;
+            }
+
+            @keyframes glow {
+                0% { text-shadow: 0 0 5px rgba(255,255,255,0.4); }
+                100% { text-shadow: 0 0 15px rgba(255,255,255,0.8); }
+            }
+            
+            @keyframes wiggle {
+                0% { transform: rotate(0deg); }
+                50% { transform: rotate(0.3deg) scale(1.0); }
+                100% { transform: rotate(-0.3deg); }
+            }
+
+            .header-subtitle {
+                animation: pulse-light 3s infinite;
+            }
+            @keyframes pulse-light {
+                0% { opacity: 0.8; }
+                50% { opacity: 1; }
+                100% { opacity: 0.8; }
+            }
+
+            .dashboard {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+                padding: 20px 10px 40px 10px;
+            }
+
+            .card-link {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                border-radius: 20px;
+                background: rgba(255, 255, 255, 0.883); 
+                backdrop-filter: blur(8px);
+                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                cursor: pointer;
+                transition: transform 0.4s cubic-bezier(0.25,0.8,0.25,1), box-shadow 0.4s ease, background 0.4s ease;
+                text-align: center;
+                gap: 12px;
+                font-weight: 700;
+                min-height: 120px;
+                color: var(--primary-dark);
+                text-decoration: none; 
+                opacity: 0; 
+                transform: translateY(20px);
+                animation: fadeInUp 0.8s ease forwards;
+                position: relative; 
+                overflow: hidden; 
+            }
+
+            .card-link::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, 0.2) 50%, transparent 60%);
+                transform: translateX(-100%);
+                transition: transform 0.8s ease;
+                pointer-events: none;
+            }
+
+            .card-link:hover::before {
+                transform: translateX(100%);
+            }
+            
+            .card-icon {
+                font-size: 2.5rem;
+                line-height: 1;
+                transition: transform 0.3s ease-in-out;
+            }
+
+            .card-link:hover .card-icon {
+                transform: scale(1.1) translateY(-5px) rotateZ(3deg);
+            }
+
+            .card-link:hover {
+                transform: translateY(-8px) scale(1.03) rotateZ(0.5deg); 
+                box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 0 5px var(--primary-light);
+                background: rgba(255, 255, 255, 0.98);
+            }
+
+            .dashboard .card-link:nth-child(1) { animation-delay: 0.1s; }
+            .dashboard .card-link:nth-child(2) { animation-delay: 0.2s; }
+            .dashboard .card-link:nth-child(3) { animation-delay: 0.3s; }
+            .dashboard .card-link:nth-child(4) { animation-delay: 0.4s; }
+            .dashboard .card-link:nth-child(5) { animation-delay: 0.5s; }
+            .dashboard .card-link:nth-child(6) { animation-delay: 0.6s; }
+
+            @keyframes fadeInUp {
+                0% { opacity: 0; transform: translateY(20px); }
+                100% { opacity: 1; transform: translateY(0); }
+            }
+            
+            .card-link[data-page="market-page"] {
+                position: relative;
+            }
+            .live-dot {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                width: 12px;
+                height: 12px;
+                background-color: #ff4d4d;
+                border-radius: 50%;
+                border: 2px solid var(--off-white);
+                animation: pulse-live 1.5s infinite;
+            }
+            @keyframes pulse-live {
+                0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); }
+                70% { box-shadow: 0 0 0 10px rgba(255, 77, 77, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
+            }
+
+            .card-link[data-page="chatbot-page"] {
+                background: linear-gradient(145deg, var(--light-green), var(--off-white));
+                border: 3px solid var(--primary-green);
+                animation: fadeInUp 0.8s ease forwards 0.6s, card-bounce 4s infinite ease-in-out; 
+            }
+
+            @keyframes card-bounce {
+                0%, 100% { transform: translateY(0) scale(1.0); }
+                50% { transform: translateY(-5px) scale(1.01); }
+            }
+
+            .about-section {
+                padding: 20px;
+                max-height: 0;
+                opacity: 0;
+                overflow: hidden;
+                transition: max-height 0.7s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+            }
+
+            .about-section.active {
+                max-height: 3000px; 
+                opacity: 1;
+            }
+            
+            .about-card {
+                border: 1px solid rgba(0,0,0,0.05); 
+                padding: 24px; 
+                background: rgba(255, 255, 255, 0.95);
+            }
+            
+            .about-card h3 {
+                font-family: 'Georgia', 'Noto Sans Devanagari', 'Noto Sans Tamil', 'Noto Sans Telugu', 'Noto Sans Malayalam', serif;
+                color: var(--primary-dark);
+                text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            }
+            
+            .about-card ul {
+                padding-left: 20px;
+            }
+            .about-card ul li {
+                list-style-type: '👉';
+                padding-left: 0.5em;
+            }
+
+            .about-video {
+                box-shadow: 0 15px 30px rgba(41, 140, 86, 0.5);
+            }
+
+            .button {
+                border-radius: 9999px;
+                padding: 0.8rem 2.5rem; 
+                color: white;
+                font-weight: 700;
+                text-align: center;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, filter 0.3s ease;
+                letter-spacing: 0.5px;
+                background: linear-gradient(to right, #FFD700, #FFA500); 
+                display: inline-block;
+                border: 2px solid var(--off-white);
+                position: relative;
+                z-index: 10;
+            }
+
+            .button:hover {
+                transform: translateY(-5px) scale(1.05); 
+                box-shadow: 0 12px 30px rgba(255,165,0,0.6); 
+                background: linear-gradient(to right, #FFA500, #FFD700);
+                filter: brightness(1.1); 
+                animation: color-pulse 1s infinite alternate;
+            }
+            
+            @keyframes color-pulse {
+                0% { filter: hue-rotate(0deg); }
+                100% { filter: hue-rotate(10deg); }
+            }
+
+            .button.secondary {
+                background: linear-gradient(to right, #1f5c3c, #298c56);
+                border-color: #d1e3d6;
+            }
+            
+            .button.secondary:hover {
+                transform: translateY(-5px) scale(1.05);
+                box-shadow: 0 12px 30px rgba(41, 140, 86, 0.6); 
+                background: linear-gradient(to right, #298c56, #1f5c3c);
+            }
+
+            @media screen and (max-width: 500px) {
+                .mobile-frame {
+                    width: 95%;
+                    height: 90vh;
+                    padding: 10px;
+                }
+                .dashboard {
+                    grid-template-columns: 1fr;
+                    gap: 12px;
+                }
+            }
+        </style>
+    </head>
+    <body class="flex items-center justify-center min-h-screen">
+
+        <div class="mobile-frame">
+            <div class="app-container flex-1 overflow-auto">
+                <header class="text-center my-8">
+                    <h1 id="main-title" class="text-4xl text-off-white header-title">👨‍🌾AGROVA</h1>
+                    <!-- English source text for lookup -->
+                    <p id="main-subtitle" class="mt-1 text-sm text-green-200 tracking-wider header-subtitle">Your daily agricultural assistant</p>
+                </header>
+
+                <div id="app-content"> 
+                    <div id="dashboard-section" class="px-4 dashboard">
+                        <!-- English source text stored in data-i18n -->
+                        <a href="crop.html" class="card-link" data-page="crop-page" data-i18n="Crop Lifecycle">
+                            <div class="card-icon">🌿</div> 
+                            <span id="card-1-text">Crop Lifecycle</span>
+                        </a>
+                        <a href="market.html" class="card-link" data-page="market-page" data-i18n="Market Prices">
+                            <div class="card-icon">💰</div>
+                            <span id="card-2-text">Market Prices</span>
+                            <div class="live-dot"></div> 
+                        </a>
+                        <a href="weather.html" class="card-link" data-page="weather-page" data-i18n="Weather Updates">
+                            <div class="card-icon">🌤️</div>
+                            <span id="card-3-text">Weather Updates</span>
+                        </a>
+                        <a href="pest.html" class="card-link" data-page="pest-page" data-i18n="Pest Control">
+                            <div class="card-icon">🐛</div>
+                            <span id="card-4-text">Pest Control</span>
+                        </a>
+                        <a href="schemes.html" class="card-link" data-page="schemes-page" data-i18n="Govt Schemes">
+                            <div class="card-icon">🌾</div>
+                            <span id="card-5-text">Govt Schemes</span>
+                        </a>
+                        <a href="template/chatbot.html" class="card-link" style="grid-column: 1 / -1;" data-page="chatbot-page" data-i18n="Chatbot & Support (Kisan Mitra)"> 
+                            <div class="card-icon">💬</div>
+                            <span id="card-6-text">Chatbot & Support (Kisan Mitra)</span>
+                        </a>
+                    </div>
+
+                    <div class="my-6 text-center">
+                        <button id="about-more-button" class="button">
+                            About More
+                        </button>
+                    </div>
+
+                    <div id="about-section" class="about-section my-6 px-4">
+                        <div class="card about-card !cursor-default !transform-none !shadow-lg bg-white">
+                            <h3 id="about-title" class="title text-center text-xl">More About Agrova (Farmer's Friend)</h3>
+                            <p id="about-p1" class="mt-4 text-sm leading-relaxed text-gray-700 text-left">
+                                Welcome to <b>Agrova (Farmer's Friend)</b>, your comprehensive digital assistant for all things agriculture. Our mission is to empower farmers with timely, accurate, and accessible information. This app provides essential tools to help you make informed decisions, optimize crop yields, and manage resources efficiently.
+                            </p>
+                            <div class="mt-4 text-left w-full">
+                                <h4 id="about-h4-1" class="font-bold text-gray-800 mt-4"><b>🌱 Key Features from Kisan Mitra</b></h4>
+                                <ul class="list-none mt-2 text-gray-600 space-y-2 text-sm">
+                                    <!-- Data attribute holds the full original English string -->
+                                    <li data-i18n-li="Ask in Your Language – Speak or type questions, get simple answers."><b><u>Ask in Your Language</b></u> – Speak or type questions, get simple answers.</li>
+                                    <li data-i18n-li="Weather Alerts – Daily forecast & rain warnings."><b><u>Weather Alerts</b></u> – Daily forecast & rain warnings.</li>
+                                    <li data-i18n-li="Market Prices – Live mandi rates to earn more."><b><u>Market Prices</b></u> – Live mandi rates to earn more.</li>
+                                    <li data-i18n-li="Pest Solutions – Click photo → get instant treatment."><b><u>Pest Solutions</b></u> – Click photo → get instant treatment.</li>
+                                    <li data-i18n-li="Govt Schemes – Latest subsidies & support details."><b><u>Govt Schemes</b></u> – Latest subsidies & support details.</li>
+                                    <li data-i18n-li="Crop Tracker – Step-by-step care guide for your crop."><b><u>Crop Tracker</b></u> – Step-by-step care guide for your crop.</li>
+                                </ul>
+                                <h4 id="about-h4-2" class="mt-4 text-center font-bold text-gray-800">✨ “<b>Kisan Mitra</b> – Your Digital Farming Friend, Always With You.”</h4>
+                            </div>
+                            
+                            <div class="mt-6 w-full text-center">
+                                <h4 id="resource-title" class="font-bold text-xl mb-3 text-primary-dark">In-Depth Learning Resources</h4>
+                                <a id="download-button" href="https://www.manage.gov.in/publications/farmerbook.pdf" target="_blank" class="button secondary">
+                                    Download Comprehensive Farmer's Handbook (PDF)
+                                </a>
+                                <p id="resource-source" class="text-xs text-gray-500 mt-2">Source: MANAGE (National Institute of Agricultural Extension Management)</p>
+                            </div>
+                            
+                            <div class="about-video mt-6 w-full aspect-video rounded-xl overflow-hidden shadow-xl">
+                                <video autoplay muted controls loop width="100%" height="100%">
+                                    <source src="Farmmer.mp4" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // --- 1. TRANSLATION DICTIONARY FOR RELIABLE FALLBACKS (Hindi, Tamil, AND MALAYALAM) ---
+            const translationDictionary = {
+                // Hindi (hi) Translations
+                "hi": {
+                    "Your daily agricultural assistant": "आपका दैनिक कृषि सहायक",
+                    "Crop Lifecycle": "फसल जीवनचक्र",
+                    "Market Prices": "बाज़ार मूल्य",
+                    "Weather Updates": "मौसम अपडेट",
+                    "Pest Control": "कीट नियंत्रण",
+                    "Govt Schemes": "सरकारी योजनाएं",
+                    "Chatbot & Support (Kisan Mitra)": "चैटबॉट और सहायता (किसान मित्र)",
+                    "About More": "और जानें",
+                    "Show Less": "कम जानें",
+                    "More About Agrova (Farmer's Friend)": "एग्रोवा (किसान का दोस्त) के बारे में और जानें",
+                    "🌱 Key Features from Kisan Mitra": "🌱 किसान मित्र की मुख्य विशेषताएं",
+                    "In-Depth Learning Resources": "गहन शिक्षण संसाधन",
+                    "Download Comprehensive Farmer's Handbook (PDF)": "व्यापक किसान पुस्तिका डाउनलोड करें (PDF)",
+                    "Source: MANAGE (National Institute of Agricultural Extension Management)": "स्रोत: मैनेज (राष्ट्रीय कृषि विस्तार प्रबंधन संस्थान)",
+                    "Ask in Your Language – Speak or type questions, get simple answers.": "अपनी भाषा में पूछें – सवाल बोलें या टाइप करें, सरल उत्तर पाएँ।",
+                    "Weather Alerts – Daily forecast & rain warnings.": "मौसम अलर्ट – दैनिक पूर्वानुमान और बारिश की चेतावनी।",
+                    "Market Prices – Live mandi rates to earn more.": "बाज़ार मूल्य – अधिक कमाने के लिए लाइव मंडी दरें।",
+                    "Pest Solutions – Click photo → get instant treatment.": "कीट समाधान – फोटो क्लिक करें → तुरंत उपचार पाएँ।",
+                    "Govt Schemes – Latest subsidies & support details.": "सरकारी योजनाएं – नवीनतम सब्सिडी और सहायता का विवरण।",
+                    "Crop Tracker – Step-by-step care guide for your crop.": "फसल ट्रैकर – अपनी फसल के लिए चरण-दर-चरण देखभाल मार्गदर्शिका।",
+                    "✨ “Kisan Mitra – Your Digital Farming Friend, Always With You.”": "✨ “किसान मित्र – आपका डिजिटल खेती का दोस्त, हमेशा आपके साथ।”",
+                    "Welcome to Agrova (Farmer's Friend), your comprehensive digital assistant for all things agriculture. Our mission is to empower farmers with timely, accurate, and accessible information. This app provides essential tools to help you make informed decisions, optimize crop yields, and manage resources efficiently.": "एग्रोवा (किसान का दोस्त) में आपका स्वागत है, जो कृषि से संबंधित सभी चीज़ों के लिए आपका व्यापक डिजिटल सहायक है। हमारा मिशन किसानों को समय पर, सटीक और सुलभ जानकारी के साथ सशक्त बनाना है। यह ऐप आपको सूचित निर्णय लेने, फसल की पैदावार को अनुकूलित करने और संसाधनों को कुशलतापूर्वक प्रबंधित करने में मदद करने के लिए आवश्यक उपकरण प्रदान करता है।"
+                },
+                // Tamil (ta) Translations
+                "ta": {
+                    "Your daily agricultural assistant": "உங்கள் தினசரி விவசாய உதவியாளர்",
+                    "Crop Lifecycle": "பயிர் வாழ்க்கை சுழற்சி",
+                    "Market Prices": "சந்தை விலைகள்",
+                    "Weather Updates": "வானிலை அறிவிப்புகள்",
+                    "Pest Control": "பூச்சி கட்டுப்பாடு",
+                    "Govt Schemes": "அரசு திட்டங்கள்",
+                    "Chatbot & Support (Kisan Mitra)": "அரட்டையடிப்பான் & ஆதரவு (கிசான் மித்ரா)",
+                    "About More": "மேலும் அறிய",
+                    "Show Less": "குறைவாகக் காட்டு",
+                    "More About Agrova (Farmer's Friend)": "அக்ரோவா (விவசாயியின் நண்பன்) பற்றி மேலும் அறிய",
+                    "🌱 Key Features from Kisan Mitra": "🌱 கிசான் மித்ராவின் முக்கிய அம்சங்கள்",
+                    "In-Depth Learning Resources": "ஆழமான கற்றல் வளங்கள்",
+                    "Download Comprehensive Farmer's Handbook (PDF)": "விரிவான விவசாயியின் கையேட்டைப் பதிவிறக்கவும் (PDF)",
+                    "Source: MANAGE (National Institute of Agricultural Extension Management)": "ஆதாரம்: MANAGE (தேசிய வேளாண்மை விரிவாக்க மேலாண்மை நிறுவனம்)",
+                    "Ask in Your Language – Speak or type questions, get simple answers.": "உங்கள் மொழியில் கேளுங்கள் – கேள்விகளைப் பேசவும் அல்லது தட்டச்சு செய்யவும், எளிய பதில்களைப் பெறவும்.",
+                    "Weather Alerts – Daily forecast & rain warnings.": "வானிலை எச்சரிக்கைகள் – தினசரி முன்னறிவிப்பு & மழை எச்சரிக்கைகள்.",
+                    "Market Prices – Live mandi rates to earn more.": "சந்தை விலைகள் – அதிகமாக சம்பாதிக்க நேரடி மண்டி விலைகள்.",
+                    "Pest Solutions – Click photo → get instant treatment.": "பூச்சி தீர்வுகள் – புகைப்படத்தை கிளிக் செய்யவும் → உடனடி சிகிச்சையைப் பெறவும்.",
+                    "Govt Schemes – Latest subsidies & support details.": "அரசு திட்டங்கள் – சமீபத்திய மானியங்கள் மற்றும் ஆதரவு விவரங்கள்.",
+                    "Crop Tracker – Step-by-step care guide for your crop.": "பயிர் கண்காணிப்பான் – உங்கள் பயிருக்கான படிப்படியான பராமரிப்பு வழிகாட்டி.",
+                    "✨ “Kisan Mitra – Your Digital Farming Friend, Always With You.”": "✨ “கிசான் மித்ரா – உங்கள் டிஜிட்டல் விவசாய நண்பன், எப்போதும் உங்களுடன்.”",
+                    "Welcome to Agrova (Farmer's Friend), your comprehensive digital assistant for all things agriculture. Our mission is to empower farmers with timely, accurate, and accessible information. This app provides essential tools to help you make informed decisions, optimize crop yields, and manage resources efficiently.": "அக்ரோவா (விவசாயியின் நண்பன்) க்கு வரவேற்கிறோம், இது விவசாயம் தொடர்பான அனைத்து விஷயங்களுக்கும் உங்கள் விரிவான டிஜிட்டல் உதவியாளர். சரியான நேரத்தில், துல்லியமான மற்றும் அணுகக்கூடிய தகவல்களுடன் விவசாயிகளுக்கு அதிகாரம் அளிப்பதே எங்கள் நோக்கம். இந்த பயன்பாடு உங்களுக்கு தகவலறிந்த முடிவுகளை எடுக்க, பயிர் விளைச்சலை மேம்படுத்த மற்றும் வளங்களை திறமையாக நிர்வகிக்க உதவும் அத்தியாவசிய கருவிகளை வழங்குகிறது."
+                },
+                // Malayalam (ml) Translations - NEWLY ADDED
+                "ml": {
+                    "Your daily agricultural assistant": "നിങ്ങളുടെ ദൈനംദിന കാർഷിക സഹായി",
+                    "Crop Lifecycle": "വിളയുടെ ജീവിത ചക്രം",
+                    "Market Prices": "കമ്പോള വിലകൾ",
+                    "Weather Updates": "കാലാവസ്ഥാ അപ്‌ഡേറ്റുകൾ",
+                    "Pest Control": "കീടനിയന്ത്രണം",
+                    "Govt Schemes": "സർക്കാർ പദ്ധതികൾ",
+                    "Chatbot & Support (Kisan Mitra)": "ചാറ്റ്‌ബോട്ട് & പിന്തുണ (കിസാൻ മിത്ര)",
+                    "About More": "കൂടുതൽ അറിയുക",
+                    "Show Less": "കുറവ് കാണിക്കുക",
+                    "More About Agrova (Farmer's Friend)": "അഗ്രോവയെക്കുറിച്ച് കൂടുതൽ (കർഷകന്റെ സുഹൃത്ത്)",
+                    "🌱 Key Features from Kisan Mitra": "🌱 കിസാൻ മിത്രയുടെ പ്രധാന സവിശേഷതകൾ",
+                    "In-Depth Learning Resources": "ആഴത്തിലുള്ള പഠന വിഭവങ്ങൾ",
+                    "Download Comprehensive Farmer's Handbook (PDF)": "സമഗ്ര കർഷക കൈപ്പുസ്തകം ഡൗൺലോഡ് ചെയ്യുക (PDF)",
+                    "Source: MANAGE (National Institute of Agricultural Extension Management)": "ഉറവിടം: MANAGE (ദേശീയ കാർഷിക വികസന മാനേജ്മെന്റ് സ്ഥാപനം)",
+                    "Ask in Your Language – Speak or type questions, get simple answers.": "നിങ്ങളുടെ ഭാഷയിൽ ചോദിക്കുക – ചോദ്യങ്ങൾ സംസാരിക്കുക അല്ലെങ്കിൽ ടൈപ്പ് ചെയ്യുക, ലളിതമായ ഉത്തരങ്ങൾ നേടുക.",
+                    "Weather Alerts – Daily forecast & rain warnings.": "കാലാവസ്ഥാ അലേർട്ടുകൾ – ദൈനംദിന പ്രവചനവും മഴ മുന്നറിയിപ്പുകളും.",
+                    "Market Prices – Live mandi rates to earn more.": "കമ്പോള വിലകൾ – കൂടുതൽ നേടുന്നതിനായി തത്സമയ മണ്ടി നിരക്കുകൾ.",
+                    "Pest Solutions – Click photo → get instant treatment.": "കീട പരിഹാരങ്ങൾ – ഫോട്ടോ ക്ലിക്കുചെയ്യുക → തൽക്ഷണ ചികിത്സ നേടുക.",
+                    "Govt Schemes – Latest subsidies & support details.": "സർക്കാർ പദ്ധതികൾ – ഏറ്റവും പുതിയ സബ്‌സിഡികളും പിന്തുണ വിശദാംശങ്ങളും.",
+                    "Crop Tracker – Step-by-step care guide for your crop.": "വിള ട്രാക്കർ – നിങ്ങളുടെ വിളകൾക്കുള്ള ഘട്ടം ഘട്ടമായുള്ള പരിചരണ മാർഗ്ഗനിർദ്ദേശം.",
+                    "✨ “Kisan Mitra – Your Digital Farming Friend, Always With You.”": "✨ “കിസാൻ മിത്ര – നിങ്ങളുടെ ഡിജിറ്റൽ കൃഷി സുഹൃത്ത്, എപ്പോഴും നിങ്ങളോടൊപ്പം.”",
+                    "Welcome to Agrova (Farmer's Friend), your comprehensive digital assistant for all things agriculture. Our mission is to empower farmers with timely, accurate, and accessible information. This app provides essential tools to help you make informed decisions, optimize crop yields, and manage resources efficiently.": "കൃഷിയുമായി ബന്ധപ്പെട്ട എല്ലാ കാര്യങ്ങൾക്കുമുള്ള നിങ്ങളുടെ സമഗ്ര ഡിജിറ്റൽ സഹായിയായ **അഗ്രോവ (കർഷകന്റെ സുഹൃത്ത്)**-ലേക്ക് സ്വാഗതം. കൃത്യസമയത്തും കൃത്യതയിലും വിവരങ്ങൾ നൽകി കർഷകരെ ശാക്തീകരിക്കുക എന്നതാണ് ഞങ്ങളുടെ ദൗത്യം. അറിവോടെയുള്ള തീരുമാനങ്ങൾ എടുക്കുന്നതിനും വിളവ് വർദ്ധിപ്പിക്കുന്നതിനും വിഭവങ്ങൾ കാര്യക്ഷമമായി കൈകാര്യം ചെയ്യുന്നതിനും ഈ അപ്ലിക്കേഷൻ ആവശ്യമായ ഉപകരണങ്ങൾ നൽകുന്നു."
+                }
+            };
+
+            // --- 2. API & TRANSLATION CORE LOGIC ---
+            async function translateText(text, targetLang) {
+                if (targetLang === "en") return text;
+                
+                // Priority 1: Check the local dictionary for instant, reliable translation
+                if (translationDictionary[targetLang] && translationDictionary[targetLang][text]) {
+                    return translationDictionary[targetLang][text];
+                }
+
+                // Priority 2: Use the external API for less common phrases or other languages (like Telugu/French)
+                console.log(`Calling API for: ${text} to ${targetLang}`);
+                
+                // ⚠️ IMPORTANT: Placeholder API call - replace with your actual endpoint
+                const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `Translate the following short text to ${targetLang}: "${text}"` }] }],
+                        systemInstruction: { parts: [{ text: "You are a translation service. Respond only with the translated text, do not add any quotes, context, or conversational filler." }] }
+                    })
+                });
+
+                if (!response.ok) {
+                    console.error(`Translation API call failed for ${text}. Using original text.`);
+                    return text; 
+                }
+                
+                const result = await response.json();
+                const translatedText = result.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+
+                return translatedText || text;
+            }
+
+            // --- 3. APPLY TRANSLATION TO THE DOM ---
+            async function applyTranslation() {
+                const chosenLang = localStorage.getItem("chosenLanguage") || "en";
+                if (chosenLang === "en") return;
+
+                // --- HEADER ---
+                document.getElementById("main-subtitle").innerText = await translateText("Your daily agricultural assistant", chosenLang);
+
+                // --- DASHBOARD CARDS (using data-i18n) ---
+                const cardLinks = document.querySelectorAll('#dashboard-section .card-link span');
+                cardLinks.forEach(async (span) => {
+                    const originalText = span.parentElement.getAttribute('data-i18n');
+                    if (originalText) {
+                        span.innerText = await translateText(originalText, chosenLang);
+                    }
+                });
+
+                // --- ABOUT SECTION & BUTTONS ---
+                const aboutButton = document.getElementById("about-more-button");
+                aboutButton.textContent = await translateText("About More", chosenLang);
+                
+                document.getElementById("about-title").innerText = await translateText("More About Agrova (Farmer's Friend)", chosenLang);
+                
+                // Large Paragraph Translation
+                const originalP1 = "Welcome to Agrova (Farmer's Friend), your comprehensive digital assistant for all things agriculture. Our mission is to empower farmers with timely, accurate, and accessible information. This app provides essential tools to help you make informed decisions, optimize crop yields, and manage resources efficiently.";
+                let translatedP1 = await translateText(originalP1, chosenLang);
+                // Re-inject bold formatting for the app name after translation
+                document.getElementById("about-p1").innerHTML = translatedP1.replace('Agrova (Farmer\'s Friend)', `<b>Agrova (Farmer's Friend)</b>`);
+                
+                document.getElementById("about-h4-1").innerHTML = await translateText("🌱 Key Features from Kisan Mitra", chosenLang);
+                
+                // List Items (li) - Translate text inside the inner HTML
+                const listItems = document.querySelectorAll('[data-i18n-li]');
+
+                for (const li of listItems) {
+                    const originalText = li.getAttribute('data-i18n-li');
+                    const translatedText = await translateText(originalText, chosenLang);
+                    
+                    // Simple replacement to try and preserve the bold/underline structure if possible
+                    li.innerHTML = li.innerHTML.replace(originalText, translatedText);
+                }
+
+                let tagline = await translateText("✨ “Kisan Mitra – Your Digital Farming Friend, Always With You.”", chosenLang);
+                document.getElementById("about-h4-2").innerHTML = tagline.replace('Kisan Mitra', '<b>Kisan Mitra</b>');
+                
+                document.getElementById("resource-title").innerText = await translateText("In-Depth Learning Resources", chosenLang);
+                document.getElementById("download-button").innerText = await translateText("Download Comprehensive Farmer's Handbook (PDF)", chosenLang);
+                document.getElementById("resource-source").innerText = await translateText("Source: MANAGE (National Institute of Agricultural Extension Management)", chosenLang);
+            }
+
+            // --- 4. INITIALIZATION AND EVENT LISTENERS ---
+            document.addEventListener('DOMContentLoaded', () => {
+                const aboutButton = document.getElementById('about-more-button');
+                const aboutSection = document.getElementById('about-section');
+                
+                // Start translation
+                applyTranslation();
+                
+                // About More/Show Less toggle
+                aboutButton.addEventListener('click', async () => {
+                    const isActive = aboutSection.classList.contains('active');
+                    const chosenLang = localStorage.getItem("chosenLanguage") || "en";
+                    
+                    if (!isActive) {
+                        aboutSection.classList.add('active');
+                        aboutButton.textContent = await translateText('Show Less', chosenLang); 
+                        setTimeout(() => {
+                            aboutSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 100); 
+                    } else {
+                        aboutSection.classList.remove('active');
+                        aboutButton.textContent = await translateText('About More', chosenLang); 
+                        setTimeout(() => {
+                            aboutButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 700);
+                    }
+                });
+            });
+        </script>
+    </body>
+    </html>
