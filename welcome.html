@@ -42,7 +42,8 @@
             flex-direction: column;
             position: relative;
             text-align: center;
-            animation: bounceIn 1.2s ease-out, floatTilt 6s infinite ease-in-out;
+            /* CHANGES MADE HERE: Removed floatTilt animation */
+            animation: bounceIn 1.2s ease-out; 
         }
 
         /* Glow around frame */
@@ -196,7 +197,8 @@
             50% { box-shadow: 0 0 80px rgba(67,160,71,0.8); }
         }
 
-        @keyframes floatTilt {
+        /* floatTilt animation is no longer used, but kept for reference */
+        @keyframes floatTilt { 
             0% { transform: rotate(0deg) translateY(0); }
             50% { transform: rotate(1.2deg) translateY(-10px); }
             100% { transform: rotate(0deg) translateY(0); }
@@ -251,24 +253,18 @@
         }
 
     </style>
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- iPhone styled frame -->
     <div class="mobile-frame">
         <div class="container">
-            <!-- App Logo -->
             <img src="logo.png" alt="Agrova Logo" class="app-logo">
             
-            <!-- Dynamic header text will be inserted here -->
             <h1 id="dynamic-header"></h1>
-            <!-- Dynamic paragraph text will be inserted here -->
             <p id="dynamic-text"></p>
             <a href="language.html" class="start-button">🚀 START NOW</a>
 
-            <!-- Animated leaf graphics -->
             <div class="animated-leaf leaf-1"></div>
             <div class="animated-leaf leaf-2"></div>
             <div class="animated-leaf leaf-3"></div>
